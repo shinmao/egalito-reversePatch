@@ -92,8 +92,8 @@ void HardenApp::doRetpolines() {
     }
 }
 
-void HardenApp::rmBlocks() {
-    std::cout << "removing blocks...\n";
+void HardenApp::doRevpatch() {
+    std::cout << "Reversing patch...\n";
     RUN_PASS(ReversePatch(), getProgram());
 }
 
@@ -121,7 +121,7 @@ static void printUsage(const char *program) {
         "    --permute-data Randomize order of global variables in .data\n"
         "    --profile      Add profiling counters to each function\n"
         "    --cond-watchpoint   Add conditional watchpoints for GDB\n"
-        "    --rm-blocks    [Test] Remove blocks\n"
+        "    --rev-patch    [Extended] Generate patch on another version\n"
         "Note: the EGALITO_DEBUG variable is also honoured.\n";
 }
 
@@ -154,7 +154,7 @@ void HardenApp::run(int argc, char **argv) {
         {"--permute-data",  [&ops] () { ops.push_back("permute-data"); }},
         {"--profile",       [&ops] () { ops.push_back("profile"); }},
         {"--cond-watchpoint", [&ops] () { ops.push_back("cond-watchpoint"); }},
-        {"--rm-blocks",     [&ops] () {ops.push_back("remove-blocks"); }},
+        {"--rev-patch",     [&ops] () {ops.push_back("reverse-patch"); }},
     };
 
     std::map<std::string, std::function<void ()>> techniques = {
@@ -168,7 +168,7 @@ void HardenApp::run(int argc, char **argv) {
         {"profile",         [this] () { doProfiling(); }},
         {"cond-watchpoint", [this] () { doWatching(); }},
         {"retpolines",      [this] () { doRetpolines(); }},
-        {"remove-blocks",      [this] () { rmBlocks(); }},
+        {"reverse-patch",      [this] () { doRevpatch(); }},
     };
 
     for(int a = 1; a < argc; a ++) {

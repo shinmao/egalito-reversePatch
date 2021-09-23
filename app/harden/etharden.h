@@ -20,7 +20,7 @@ private:
     void doProfiling();
     void doWatching();
     void doRetpolines();
-    void rmBlocks();
+    void doRevpatch();
 };
 
 #endif
