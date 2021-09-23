@@ -13,6 +13,7 @@
 #include "pass/profilesave.h"
 #include "pass/condwatchpoint.h"
 #include "pass/retpoline.h"
+#include "pass/reversepatch.h"
 #include "log/registry.h"
 #include "log/temp.h"
 
@@ -91,6 +92,11 @@ void HardenApp::doRetpolines() {
     }
 }
 
+void HardenApp::rmBlocks() {
+    std::cout << "removing blocks...\n";
+    RUN_PASS(ReversePatch(), getProgram());
+}
+
 static void printUsage(const char *program) {
     std::cout << "Usage: " << program << " [options] [mode] input-file output-file\n"
         "    Transforms an executable by adding CFI and a shadow stack.\n"
@@ -115,6 +121,7 @@ static void printUsage(const char *program) {
         "    --permute-data Randomize order of global variables in .data\n"
         "    --profile      Add profiling counters to each function\n"
         "    --cond-watchpoint   Add conditional watchpoints for GDB\n"
+        "    --rm-blocks    [Test] Remove blocks\n"
         "Note: the EGALITO_DEBUG variable is also honoured.\n";
 }
 
@@ -147,6 +154,7 @@ void HardenApp::run(int argc, char **argv) {
         {"--permute-data",  [&ops] () { ops.push_back("permute-data"); }},
         {"--profile",       [&ops] () { ops.push_back("profile"); }},
         {"--cond-watchpoint", [&ops] () { ops.push_back("cond-watchpoint"); }},
+        {"--rm-blocks",     [&ops] () {ops.push_back("remove-blocks"); }},
     };
 
     std::map<std::string, std::function<void ()>> techniques = {
@@ -160,6 +168,7 @@ void HardenApp::run(int argc, char **argv) {
         {"profile",         [this] () { doProfiling(); }},
         {"cond-watchpoint", [this] () { doWatching(); }},
         {"retpolines",      [this] () { doRetpolines(); }},
+        {"remove-blocks",      [this] () { rmBlocks(); }},
     };
 
     for(int a = 1; a < argc; a ++) {
