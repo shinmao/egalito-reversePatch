@@ -5,6 +5,7 @@
 
 class ReversePatch : public ChunkPass {
 private:
+  size_t extendsize;
   std::vector<Function*> rmFunc;
   std::vector<Function*> appendFunc;
   std::vector<std::string> target_func;
@@ -16,9 +17,10 @@ private:
   std::vector<Instruction*> insbeforeI;
   std::vector<Instruction*> insbeforeIns;
 public:
-  ReversePatch(){}
+  ReversePatch(size_t extendSize) : extendsize(extendSize){}
   virtual void visit(Function *function);
   virtual void visit(Block *block);
+  virtual void extendstack(Function *func, size_t extendSize);
 };
 
 #endif
