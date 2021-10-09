@@ -36,9 +36,6 @@ void ReversePatch::visit(Function *function) {
         mutator.insertBefore(insbeforeB[i], insbeforeBlk[i]);
       }
     }**/
-    auto block = function->getChildren()->getIterable()->get(2);
-    ChunkMutator mutator(function);
-    mutator.insertBefore(block, Disassemble::instruction({0xc7, 0x45, 0xf4, 0x00, 0x00, 0x00, 0x00}));
   }
   recurse(function);
 }
@@ -68,36 +65,24 @@ void ReversePatch::visit(Block *block) {
       mutator.remove(instr3);**/
     }
     else if (block->getName() == "main/bb+66") {
-      /**
       std::cout << "[block] visiting first block of main function...\n";
+
+      auto insertpoint = block->getChildren()->getIterable()->get(0);
       ChunkMutator mutator(block);
 
-      auto b1 = Disassemble::instruction({0xc7, 0x45, 0xf4, 0x00, 0x00, 0x00, 0x00});
-      auto b2 = Disassemble::instruction({0x8b, 0x45, 0x0c, 0x48, 0x98,
-        0xc6, 0x44, 0x05, 0xe0, 0x30, 0x83, 0x45, 0xc, 0x01});
+      mutator.insertBefore(insertpoint, Disassemble::instruction({0xc7, 0x45, 0xf4, 0x00, 0x00, 0x00, 0x00}));
+      mutator.insertBefore(insertpoint, Disassemble::instruction({0xeb, 0x0e}));
+      mutator.insertBefore(insertpoint, Disassemble::instruction({0x8b, 0x45, 0x0c}));
+      mutator.insertBefore(insertpoint, Disassemble::instruction({0x48, 0x98}));
+      mutator.insertBefore(insertpoint, Disassemble::instruction({0xc6, 0x44, 0x05, 0xe0, 0x30}));
+      mutator.insertBefore(insertpoint, Disassemble::instruction({0x83, 0x45, 0xc, 0x01}));
       // mov 0xc(%rbp),%eax
-      auto b3 = Disassemble::instruction({0x8b, 0x45, 0x0c, 0x83, 0xf8, 0x1f});
+      mutator.insertBefore(insertpoint, Disassemble::instruction({0x8b, 0x45, 0x0c}));
+      mutator.insertBefore(insertpoint, Disassemble::instruction({0x83, 0xf8, 0x1f}));
       // jmp to b2
-      auto b3jbe = new Instruction();
-      auto b3jbesem = new ControlFlowInstruction(X86_INS_JBE, b3jbe, "\x0f\x86", 4);
-      b3jbesem->setLink(new NormalLink(b2, Link::SCOPE_INTERNAL_JUMP));
-      b3jbe->setSemantic(b3jbesem);
-      // jmp to b3
-      auto b1jmp = new Instruction();
-      auto b1jmpsem = new ControlFlowInstruction(X86_INS_JMP, b1jmp, "\xe9", 4);
-      b1jmpsem->setLink(new NormalLink(b3, Link::SCOPE_INTERNAL_JUMP));
-      b1jmp->setSemantic(b1jmpsem);
-      // put commands into vector
-      inserted.push_back(b1);
-      inserted.push_back(b1jmp);
-      inserted.push_back(b2);
-      inserted.push_back(b3);
-      inserted.push_back(b3jbe);
-      // insert before block
-      mutator.insertBefore(block->getChildren()->getIterable()->get(2), b1);
-      **/
+      mutator.insertBefore(insertpoint, Disassemble::instruction({0x76, 0xea}));
     }
-    //recurse(block);
+    recurse(block);
 }
 
 void ReversePatch::extendstack(Function *func, size_t extendSize) {

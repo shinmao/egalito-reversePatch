@@ -18,5 +18,8 @@
 /build_aarch64
 /build_riscv
 /.etshell_history
+/.etshell2_history
+/.gdb_history
+/peda*
 /core
 
