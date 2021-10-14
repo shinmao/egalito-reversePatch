@@ -4,8 +4,10 @@
 #include "disasm/disassemble.h"
 #include "operation/mutator.h"
 #include "analysis/frametype.h"
+#include "instr/linked-x86_64.h"
 #include "stackextend.h"
 #include "link.h"
+#include "types.h"
 
 void ReversePatch::visit(Function *function) {
   if (function->getName() == "main") {
@@ -68,19 +70,36 @@ void ReversePatch::visit(Block *block) {
       std::cout << "[block] visiting first block of main function...\n";
 
       auto insertpoint = block->getChildren()->getIterable()->get(0);
-      ChunkMutator mutator(block);
 
-      mutator.insertBefore(insertpoint, Disassemble::instruction({0xc7, 0x45, 0xf4, 0x00, 0x00, 0x00, 0x00}));
-      mutator.insertBefore(insertpoint, Disassemble::instruction({0xeb, 0x0e}));
-      mutator.insertBefore(insertpoint, Disassemble::instruction({0x8b, 0x45, 0x0c}));
-      mutator.insertBefore(insertpoint, Disassemble::instruction({0x48, 0x98}));
-      mutator.insertBefore(insertpoint, Disassemble::instruction({0xc6, 0x44, 0x05, 0xe0, 0x30}));
-      mutator.insertBefore(insertpoint, Disassemble::instruction({0x83, 0x45, 0xc, 0x01}));
-      // mov 0xc(%rbp),%eax
-      mutator.insertBefore(insertpoint, Disassemble::instruction({0x8b, 0x45, 0x0c}));
-      mutator.insertBefore(insertpoint, Disassemble::instruction({0x83, 0xf8, 0x1f}));
-      // jmp to b2
-      mutator.insertBefore(insertpoint, Disassemble::instruction({0x76, 0xea}));
+      ChunkMutator mutator(block);
+      auto instr1 = Disassemble::instruction({0xc7, 0x45, 0x0c, 0x00, 0x00, 0x00, 0x00});
+      auto instr3 = Disassemble::instruction({0x8b, 0x45, 0x0c});
+      auto instr4 = Disassemble::instruction({0x48, 0x98});
+      auto instr5 = Disassemble::instruction({0xc6, 0x44, 0x05, 0xe0, 0x30});
+      auto instr6 = Disassemble::instruction({0x83, 0x45, 0xc, 0x01});
+      auto instr7 = Disassemble::instruction({0x8b, 0x45, 0x0c});
+      auto instr8 = Disassemble::instruction({0x83, 0xf8, 0x1f});
+
+      auto jmp2 = new Instruction();
+      // the last parameter means the number of padding bytes
+      auto jmpSem = new ControlFlowInstruction(X86_INS_JMP, jmp2, "\xeb\x0e", "jmp", 0);
+      jmpSem->setLink(new NormalLink(instr7, Link::SCOPE_EXTERNAL_JUMP));
+      jmp2->setSemantic(jmpSem);
+
+      auto jbe9 = new Instruction();
+      auto jbeSem = new ControlFlowInstruction(X86_INS_JBE, jbe9, "\x76\xea", "jbe", 0);
+      jbeSem->setLink(new NormalLink(instr3, Link::SCOPE_EXTERNAL_JUMP));
+      jbe9->setSemantic(jbeSem);
+
+      mutator.insertBefore(insertpoint, instr1);
+      mutator.insertBefore(insertpoint, jmp2);
+      mutator.insertBefore(insertpoint, instr3);
+      mutator.insertBefore(insertpoint, instr4);
+      mutator.insertBefore(insertpoint, instr5);
+      mutator.insertBefore(insertpoint, instr6);
+      mutator.insertBefore(insertpoint, instr7);
+      mutator.insertBefore(insertpoint, instr8);
+      mutator.insertBefore(insertpoint, jbe9);
     }
     recurse(block);
 }
