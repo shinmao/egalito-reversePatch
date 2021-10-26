@@ -94,7 +94,7 @@ void HardenApp::doRetpolines() {
 
 void HardenApp::doRevpatch() {
     std::cout << "Reversing patch...\n";
-    RUN_PASS(ReversePatch(0x10), getProgram());
+    RUN_PASS(ReversePatch(), getProgram());
 }
 
 static void printUsage(const char *program) {

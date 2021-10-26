@@ -2,25 +2,38 @@
 #define EGALITO_PASS_REVERSEPATCH_H
 
 #include "chunkpass.h"
+#include "instr/visitor.h"
+#include "instr/concrete.h"
+
+class Signature {
+public:
+  std::string fsignature;
+};
 
 class ReversePatch : public ChunkPass {
-private:
-  size_t extendsize;
-  std::vector<Function*> rmFunc;
-  std::vector<Function*> appendFunc;
-  std::vector<std::string> target_func;
-  std::vector<Block*> rmBlk;
-  std::vector<Block*> insbeforeB;
-  std::vector<Block*> insbeforeBlk;
-  std::vector<std::string> target_block;
-  std::vector<Instruction*> rmIns;
-  std::vector<Instruction*> insbeforeI;
-  std::vector<Instruction*> insbeforeIns;
 public:
-  ReversePatch(size_t extendSize) : extendsize(extendSize){}
+  std::string fsign;
+  virtual ~ReversePatch() { std::cout << "Revdone\n"; }
   virtual void visit(Function *function);
   virtual void visit(Block *block);
-  virtual void extendstack(Function *func, size_t extendSize);
+  virtual void visit(Instruction *instruction);
+};
+
+class InstructionSign : public InstructionVisitor, public ReversePatch {
+public:
+  ~InstructionSign() { std::cout << "InstructionSign\n"; }
+  void visit(IsolatedInstruction *semantic);
+  void visit(LinkedInstruction *semantic);
+  void visit(ControlFlowInstruction *semantic);
+#ifdef ARCH_X86_64
+  void visit(DataLinkedControlFlowInstruction *semantic);
+#endif
+  void visit(ReturnInstruction *semantic);
+  void visit(IndirectJumpInstruction *semantic);
+  void visit(IndirectCallInstruction *semantic);
+  void visit(StackFrameInstruction *semantic);
+  void visit(LiteralInstruction *semantic);
+  void visit(LinkedLiteralInstruction *semantic);
 };
 
 #endif
