@@ -7,10 +7,12 @@ class HardenApp {
 private:
     bool quiet;
     EgalitoInterface *egalito;
+    Module *comparedModule;
 public:
-    HardenApp() : quiet(true) {}
+    HardenApp() : quiet(true), comparedModule(nullptr) {}
     void run(int argc, char **argv);
     void parse(const std::string &filename, bool oneToOne);
+    void revparse(const std::string &filename1, const std::string &filename2, bool oneToOne);
     void generate(const std::string &filename, bool oneToOne);
     Program *getProgram() const { return egalito->getProgram(); }
 private:

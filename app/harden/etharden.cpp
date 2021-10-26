@@ -38,6 +38,28 @@ void HardenApp::parse(const std::string &filename, bool oneToOne) {
     }
 }
 
+void HardenApp::revparse(const std::string &filename1, const std::string &filename2, bool oneToOne) {
+    egalito = new EgalitoInterface(!quiet, true);
+
+    std::cout << "Tansforming two files [" << filename1 << ", " << filename2 << "]\n";
+
+    try {
+        egalito->initializeParsing();
+
+        if(oneToOne) {
+            std::cout << "Parsing two ELF files...\n";
+        }
+        else {
+            std::cout << "Parsing two ELF files with all shared library dependencies...\n";
+        }
+        egalito->parse(filename1, !oneToOne);
+        comparedModule = egalito->parse(filename2, Library::ROLE_EXTRA, false);
+    }
+    catch(const char *message) {
+        std::cout << "Exception: " << message << std::endl;
+    }
+}
+
 void HardenApp::generate(const std::string &output, bool oneToOne) {
     std::cout << "Performing code generation into [" << output << "]...\n";
     egalito->generate(output, !oneToOne);
@@ -93,8 +115,12 @@ void HardenApp::doRetpolines() {
 }
 
 void HardenApp::doRevpatch() {
-    std::cout << "Reversing patch...\n";
-    RUN_PASS(ReversePatch(), getProgram());
+    std::cout << "Comparing two modules...\n";
+    auto program = getProgram();
+    auto module = program->getMain();
+    ReversePatch revpatch(comparedModule);
+    module->accept(&revpatch);
+    //RUN_PASS(ReversePatch(), getProgram());
 }
 
 static void printUsage(const char *program) {
@@ -168,7 +194,7 @@ void HardenApp::run(int argc, char **argv) {
         {"profile",         [this] () { doProfiling(); }},
         {"cond-watchpoint", [this] () { doWatching(); }},
         {"retpolines",      [this] () { doRetpolines(); }},
-        {"reverse-patch",      [this] () { doRevpatch(); }},
+        {"reverse-patch",   [this] () { doRevpatch(); }},
     };
 
     for(int a = 1; a < argc; a ++) {
@@ -185,6 +211,16 @@ void HardenApp::run(int argc, char **argv) {
             if(!found) {
                 std::cout << "Warning: unrecognized option \"" << arg << "\"\n";
             }
+        }
+        else if(argv[a] && argv[a + 1] && argv[a + 2]) {
+            // case for rev ReversePatch
+            // parse two binary and map to memory at the same time
+            revparse(argv[a], argv[a + 1], oneToOne);
+            for(auto op : ops) {
+              techniques[op]();
+            }
+            // no generation of elf
+            break;
         }
         else if(argv[a] && argv[a + 1]) {
             parse(argv[a], oneToOne);
