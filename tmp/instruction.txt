@@ -1,0 +1,288 @@
+function name: deregister_tm_clones
+Linked Instruction: leaq
+InstructionSign
+Linked Instruction: leaq
+InstructionSign
+Isolated Instruction: cmpq
+InstructionSign
+ControlFlow Instruction: je
+InstructionSign
+Linked Instruction: movq
+InstructionSign
+Isolated Instruction: testq
+InstructionSign
+ControlFlow Instruction: je
+InstructionSign
+Indirect Jump Instruction: jmpq
+InstructionSign
+Isolated Instruction: nopl
+InstructionSign
+Ret: retq
+InstructionSign
+Isolated Instruction: nopl
+InstructionSign
+fsign: 
+function name: register_tm_clones
+Linked Instruction: leaq
+InstructionSign
+Linked Instruction: leaq
+InstructionSign
+Isolated Instruction: subq
+InstructionSign
+Isolated Instruction: movq
+InstructionSign
+Isolated Instruction: shrq
+InstructionSign
+Isolated Instruction: sarq
+InstructionSign
+Isolated Instruction: addq
+InstructionSign
+Isolated Instruction: sarq
+InstructionSign
+ControlFlow Instruction: je
+InstructionSign
+Linked Instruction: movq
+InstructionSign
+Isolated Instruction: testq
+InstructionSign
+ControlFlow Instruction: je
+InstructionSign
+Indirect Jump Instruction: jmpq
+InstructionSign
+Isolated Instruction: nopw
+InstructionSign
+Ret: retq
+InstructionSign
+Isolated Instruction: nopl
+InstructionSign
+fsign: 
+function name: __do_global_dtors_aux
+Linked Instruction: cmpb
+InstructionSign
+ControlFlow Instruction: jne
+InstructionSign
+Isolated Instruction: pushq
+InstructionSign
+Linked Instruction: cmpq
+InstructionSign
+Isolated Instruction: movq
+InstructionSign
+ControlFlow Instruction: je
+InstructionSign
+Linked Instruction: movq
+InstructionSign
+ControlFlow Instruction: callq
+InstructionSign
+ControlFlow Instruction: callq
+InstructionSign
+Linked Instruction: movb
+InstructionSign
+Isolated Instruction: popq
+InstructionSign
+Ret: retq
+InstructionSign
+Isolated Instruction: nopl
+InstructionSign
+Ret: retq
+InstructionSign
+Isolated Instruction: nopl
+InstructionSign
+fsign: 
+function name: frame_dummy
+ControlFlow Instruction: jmp
+InstructionSign
+fsign: 
+function name: _init
+Isolated Instruction: subq
+InstructionSign
+Linked Instruction: movq
+InstructionSign
+Isolated Instruction: testq
+InstructionSign
+ControlFlow Instruction: je
+InstructionSign
+Indirect call Instruction: callq
+InstructionSign
+Isolated Instruction: addq
+InstructionSign
+Ret: retq
+InstructionSign
+fsign: 
+function name: __libc_csu_fini
+Ret: retq
+InstructionSign
+fsign: 
+function name: _fini
+Isolated Instruction: subq
+InstructionSign
+Isolated Instruction: addq
+InstructionSign
+Ret: retq
+InstructionSign
+fsign: 
+function name: __libc_csu_init
+Isolated Instruction: pushq
+InstructionSign
+Linked Instruction: leaq
+InstructionSign
+Isolated Instruction: pushq
+InstructionSign
+Isolated Instruction: movq
+InstructionSign
+Isolated Instruction: pushq
+InstructionSign
+Isolated Instruction: movq
+InstructionSign
+Isolated Instruction: pushq
+InstructionSign
+Isolated Instruction: movl
+InstructionSign
+Isolated Instruction: pushq
+InstructionSign
+Linked Instruction: leaq
+InstructionSign
+Isolated Instruction: pushq
+InstructionSign
+Isolated Instruction: subq
+InstructionSign
+Isolated Instruction: subq
+InstructionSign
+ControlFlow Instruction: callq
+InstructionSign
+Isolated Instruction: sarq
+InstructionSign
+ControlFlow Instruction: je
+InstructionSign
+Isolated Instruction: xorl
+InstructionSign
+Isolated Instruction: nopl
+InstructionSign
+Isolated Instruction: movq
+InstructionSign
+Isolated Instruction: movq
+InstructionSign
+Isolated Instruction: movl
+InstructionSign
+Indirect call Instruction: callq
+InstructionSign
+Isolated Instruction: addq
+InstructionSign
+Isolated Instruction: cmpq
+InstructionSign
+ControlFlow Instruction: jne
+InstructionSign
+Isolated Instruction: addq
+InstructionSign
+Isolated Instruction: popq
+InstructionSign
+Isolated Instruction: popq
+InstructionSign
+Isolated Instruction: popq
+InstructionSign
+Isolated Instruction: popq
+InstructionSign
+Isolated Instruction: popq
+InstructionSign
+Isolated Instruction: popq
+InstructionSign
+Ret: retq
+InstructionSign
+fsign: 
+function name: win
+Isolated Instruction: pushq
+InstructionSign
+Isolated Instruction: movq
+InstructionSign
+Linked Instruction: leaq
+InstructionSign
+ControlFlow Instruction: callq
+InstructionSign
+Isolated Instruction: nop
+InstructionSign
+Isolated Instruction: popq
+InstructionSign
+Ret: retq
+InstructionSign
+fsign: 
+function name: _start
+Isolated Instruction: xorl
+InstructionSign
+Isolated Instruction: movq
+InstructionSign
+Isolated Instruction: popq
+InstructionSign
+Isolated Instruction: movq
+InstructionSign
+Isolated Instruction: andq
+InstructionSign
+Isolated Instruction: pushq
+InstructionSign
+Isolated Instruction: pushq
+InstructionSign
+Linked Instruction: leaq
+InstructionSign
+Linked Instruction: leaq
+InstructionSign
+Linked Instruction: leaq
+InstructionSign
+Data Linked ControlFlow Instruction: callq
+InstructionSign
+Isolated Instruction: hlt
+InstructionSign
+fsign: 
+function name: main
+Isolated Instruction: pushq
+InstructionSign
+Isolated Instruction: movq
+InstructionSign
+Isolated Instruction: subq
+InstructionSign
+Linked Instruction: leaq
+InstructionSign
+Isolated Instruction: movq
+InstructionSign
+Linked Instruction: leaq
+InstructionSign
+Isolated Instruction: movl
+InstructionSign
+ControlFlow Instruction: callq
+InstructionSign
+Linked Instruction: movq
+InstructionSign
+Isolated Instruction: movq
+InstructionSign
+Isolated Instruction: leaq
+InstructionSign
+Isolated Instruction: movl
+InstructionSign
+Isolated Instruction: movq
+InstructionSign
+ControlFlow Instruction: callq
+InstructionSign
+Isolated Instruction: movl
+InstructionSign
+ControlFlow Instruction: jmp
+InstructionSign
+Isolated Instruction: movl
+InstructionSign
+Isolated Instruction: cltq
+InstructionSign
+Isolated Instruction: movb
+InstructionSign
+Isolated Instruction: addl
+InstructionSign
+Isolated Instruction: movl
+InstructionSign
+Isolated Instruction: cmpl
+InstructionSign
+ControlFlow Instruction: jbe
+InstructionSign
+Isolated Instruction: movl
+InstructionSign
+Isolated Instruction: leave
+InstructionSign
+Ret: retq
+InstructionSign
+fsign: 
+Revdone
+
