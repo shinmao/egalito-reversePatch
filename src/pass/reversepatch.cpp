@@ -48,11 +48,14 @@ void ReversePatch::visit(Instruction *instruction) {
   #ifdef ARCH_X86_64
   if(dynamic_cast<DataLinkedControlFlowInstruction *>(semantic)) {
     sign += dynamic_cast<DataLinkedControlFlowInstruction *>(semantic)->getAssembly()->getMnemonic();
+    std::cout << "operand: " << dynamic_cast<DataLinkedControlFlowInstruction *>(semantic)->getAssembly()->getOpStr() << "\n";
     return;
   }
   #endif
   if(dynamic_cast<IsolatedInstruction *>(semantic)) {
+    // inherit SemanticImpl
     sign += dynamic_cast<IsolatedInstruction *>(semantic)->getAssembly()->getMnemonic();
+    std::cout << "operand: " << dynamic_cast<IsolatedInstruction *>(semantic)->getAssembly()->getOpStr() << "\n";
   }
   else if (dynamic_cast<LinkedInstruction *>(semantic)) {
     sign += dynamic_cast<LinkedInstruction *>(semantic)->getAssembly()->getMnemonic();
@@ -61,21 +64,30 @@ void ReversePatch::visit(Instruction *instruction) {
     sign += dynamic_cast<ReturnInstruction *>(semantic)->getAssembly()->getMnemonic();
   }
   else if (dynamic_cast<IndirectCallInstruction *>(semantic)) {
+    // inherit IsolatedInstruction
     sign += dynamic_cast<IndirectCallInstruction *>(semantic)->getAssembly()->getMnemonic();
+    std::cout << "operand: " << dynamic_cast<IndirectCallInstruction *>(semantic)->getAssembly()->getOpStr() << "\n";
   }
   else if (dynamic_cast<StackFrameInstruction *>(semantic)) {
+    // most have stack frame, so we don't consider as signature
     sign += dynamic_cast<StackFrameInstruction *>(semantic)->getAssembly()->getMnemonic();
   }
   else if(dynamic_cast<LiteralInstruction *>(semantic)) {
+    // inherit SemanticImpl
     sign += dynamic_cast<LiteralInstruction *>(semantic)->getAssembly()->getMnemonic();
+    std::cout << "operand: " << dynamic_cast<LiteralInstruction *>(semantic)->getAssembly()->getOpStr() << "\n";
   }
   else if(dynamic_cast<LinkedLiteralInstruction *>(semantic)) {
     sign += dynamic_cast<LinkedLiteralInstruction *>(semantic)->getAssembly()->getMnemonic();
+    std::cout << "operand: " << dynamic_cast<LinkedLiteralInstruction *>(semantic)->getAssembly()->getOpStr() << "\n";
   }
   else if(dynamic_cast<ControlFlowInstruction *>(semantic)) {
     sign += dynamic_cast<ControlFlowInstruction *>(semantic)->getMnemonic();
+    //std::cout << "source: " << dynamic_cast<ControlFlowInstruction *>(semantic)->getSource();
   }
   else if(dynamic_cast<IndirectJumpInstruction *>(semantic)) {
+    // inherit IndirectControlFlowInstructionBase
     sign += dynamic_cast<IndirectJumpInstruction *>(semantic)->getMnemonic();
+    std::cout << "operand: " << dynamic_cast<IndirectJumpInstruction *>(semantic)->getAssembly()->getOpStr() << "\n";
   }
 }
