@@ -13,9 +13,11 @@ private:
   std::vector<std::string> cmpelfsign;
   std::vector<std::string> fsign;
   std::string sign;
+  std::vector<std::vector<std::string>> sg;
 public:
   ReversePatch(Module *comparedModule) : comparedModule(comparedModule) {}
   virtual ~ReversePatch() { std::cout << "Revdone\n"; }
+  void compare();
   virtual void visit(Module *module);
   virtual void visit(FunctionList *functionlist);
   virtual void visit(Function *function);
