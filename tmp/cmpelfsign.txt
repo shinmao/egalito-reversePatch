@@ -1,0 +1,56 @@
++===cmpelfsign===+
+__libc_csu_init
+numBB: 6
+numInst: 8
+callq: e; jmpq: 4; subq: b; addq: a; jne: 4; testq: 6; movq: 1c; retq: 12; nopw: 2; sarq: 6; nopl: c; movb: 3; je: e; leave: 1; xorl: 3; cmpq: 6; leaq: 13; cmpb: 2; pushq: 12; jmp: 3; popq: 10; andq: 1; movl: a; cltq: 1; jbe: 1; nop: 1; shrq: 2; hlt: 1; addl: 1; cmpl: 1; DataLinkedCFI: 1; CFI: 1f; Isolated: 9a; Linked: 21; [deregister_tm_clones, _init, deregister_tm_clones, _init, ]
+[self, self, self, self, self, self, self, self, self, ]
+_fini
+numBB: 1
+numInst: 3
+callq: c; jmpq: 4; subq: 9; addq: 8; jne: 3; testq: 6; movq: 18; retq: 11; nopw: 2; sarq: 5; nopl: b; movb: 3; je: d; leave: 1; xorl: 2; cmpq: 5; leaq: 11; cmpb: 2; pushq: c; jmp: 3; popq: a; andq: 1; movl: 8; cltq: 1; jbe: 1; nop: 1; shrq: 2; hlt: 1; addl: 1; cmpl: 1; DataLinkedCFI: 1; CFI: 1c; Isolated: 7e; Linked: 1f; [deregister_tm_clones, _init, deregister_tm_clones, ]
+[self, self, self, self, self, self, self, self, ]
+_start
+numBB: 2
+numInst: 1
+callq: 10; jmpq: 4; subq: b; addq: a; jne: 4; testq: 6; movq: 1f; retq: 13; nopw: 2; sarq: 6; nopl: c; movb: 3; je: e; leave: 1; xorl: 4; cmpq: 6; leaq: 17; cmpb: 2; pushq: 15; jmp: 3; popq: 12; andq: 2; movl: a; cltq: 1; jbe: 1; nop: 2; shrq: 2; hlt: 2; addl: 1; cmpl: 1; DataLinkedCFI: 2; CFI: 20; Isolated: a7; Linked: 25; [deregister_tm_clones, _init, deregister_tm_clones, _init, ]
+[self, self, self, self, self, self, self, self, self, self, ]
+_init
+numBB: 3
+numInst: 2
+callq: c; jmpq: 4; subq: 8; addq: 7; jne: 3; testq: 6; movq: 18; retq: f; nopw: 2; sarq: 5; nopl: b; movb: 3; je: d; leave: 1; xorl: 2; cmpq: 5; leaq: 11; cmpb: 2; pushq: c; jmp: 3; popq: a; andq: 1; movl: 8; cltq: 1; jbe: 1; nop: 1; shrq: 2; hlt: 1; addl: 1; cmpl: 1; DataLinkedCFI: 1; CFI: 1c; Isolated: 7a; Linked: 1f; [deregister_tm_clones, _init, deregister_tm_clones, ]
+[self, self, self, self, self, self, self, self, ]
+win
+numBB: 2
+numInst: 3
+callq: f; jmpq: 4; subq: b; addq: a; jne: 4; testq: 6; movq: 1d; retq: 13; nopw: 2; sarq: 6; nopl: c; movb: 3; je: e; leave: 1; xorl: 3; cmpq: 6; leaq: 14; cmpb: 2; pushq: 13; jmp: 3; popq: 11; andq: 1; movl: a; cltq: 1; jbe: 1; nop: 2; shrq: 2; hlt: 1; addl: 1; cmpl: 1; DataLinkedCFI: 1; CFI: 20; Isolated: 9f; Linked: 22; [deregister_tm_clones, _init, deregister_tm_clones, _init, ]
+[self, self, self, self, self, self, self, self, self, self, ]
+__libc_csu_fini
+numBB: 1
+numInst: 1
+callq: c; jmpq: 4; subq: 8; addq: 7; jne: 3; testq: 6; movq: 18; retq: 10; nopw: 2; sarq: 5; nopl: b; movb: 3; je: d; leave: 1; xorl: 2; cmpq: 5; leaq: 11; cmpb: 2; pushq: c; jmp: 3; popq: a; andq: 1; movl: 8; cltq: 1; jbe: 1; nop: 1; shrq: 2; hlt: 1; addl: 1; cmpl: 1; DataLinkedCFI: 1; CFI: 1c; Isolated: 7b; Linked: 1f; [deregister_tm_clones, _init, deregister_tm_clones, ]
+[self, self, self, self, self, self, self, self, ]
+frame_dummy
+numBB: 1
+numInst: 1
+callq: b; jmpq: 4; subq: 7; addq: 6; jne: 3; testq: 5; movq: 17; retq: e; nopw: 2; sarq: 5; nopl: b; movb: 3; je: c; leave: 1; xorl: 2; cmpq: 5; leaq: 11; cmpb: 2; pushq: c; jmp: 3; popq: a; andq: 1; movl: 8; cltq: 1; jbe: 1; nop: 1; shrq: 2; hlt: 1; addl: 1; cmpl: 1; DataLinkedCFI: 1; CFI: 1b; Isolated: 75; Linked: 1e; [deregister_tm_clones, _init, deregister_tm_clones, ]
+[self, self, self, self, self, self, self, self, ]
+__do_global_dtors_aux
+numBB: 8
+numInst: 1
+callq: b; jmpq: 4; subq: 7; addq: 6; jne: 3; testq: 5; movq: 17; retq: e; nopw: 2; sarq: 5; nopl: b; movb: 3; je: c; leave: 1; xorl: 2; cmpq: 5; leaq: 11; cmpb: 2; pushq: c; jmp: 2; popq: a; andq: 1; movl: 8; cltq: 1; jbe: 1; nop: 1; shrq: 2; hlt: 1; addl: 1; cmpl: 1; DataLinkedCFI: 1; CFI: 1a; Isolated: 75; Linked: 1e; [deregister_tm_clones, _init, deregister_tm_clones, ]
+[self, self, self, self, self, self, self, self, ]
+register_tm_clones
+numBB: 6
+numInst: 1
+callq: 9; jmpq: 4; subq: 7; addq: 6; jne: 2; testq: 5; movq: 15; retq: c; nopw: 2; sarq: 5; nopl: 9; movb: 2; je: b; leave: 1; xorl: 2; cmpq: 4; leaq: 11; cmpb: 1; pushq: b; jmp: 2; popq: 9; andq: 1; movl: 8; cltq: 1; jbe: 1; nop: 1; shrq: 2; hlt: 1; addl: 1; cmpl: 1; DataLinkedCFI: 1; CFI: 16; Isolated: 6e; Linked: 1a; [deregister_tm_clones, _init, ]
+[self, self, self, self, self, self, ]
+main
+numBB: 6
+numInst: 3
+callq: 12; jmpq: 4; subq: c; addq: a; jne: 4; testq: 6; movq: 22; retq: 14; nopw: 2; sarq: 6; nopl: c; movb: 4; je: e; leave: 2; xorl: 4; cmpq: 6; leaq: 1a; cmpb: 2; pushq: 16; jmp: 4; popq: 12; andq: 2; movl: 10; cltq: 2; jbe: 2; nop: 2; shrq: 2; hlt: 2; addl: 2; cmpl: 2; DataLinkedCFI: 2; CFI: 24; Isolated: b9; Linked: 27; [deregister_tm_clones, _init, deregister_tm_clones, _init, ]
+[self, self, self, self, self, self, self, self, self, self, self, self, ]
+deregister_tm_clones
+numBB: 6
+numInst: 1
+callq: 9; jmpq: 3; subq: 6; addq: 5; jne: 2; testq: 4; movq: 13; retq: b; nopw: 1; sarq: 3; nopl: 8; movb: 2; je: 9; leave: 1; xorl: 2; cmpq: 4; leaq: f; cmpb: 1; pushq: b; jmp: 2; popq: 9; andq: 1; movl: 8; cltq: 1; jbe: 1; nop: 1; shrq: 1; hlt: 1; addl: 1; cmpl: 1; DataLinkedCFI: 1; CFI: 14; Isolated: 63; Linked: 17; [deregister_tm_clones, _init, ]
+[self, self, self, self, self, self, ]
