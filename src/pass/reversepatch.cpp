@@ -1,7 +1,6 @@
 #include <iostream>
 #include <string>
 #include <algorithm>
-// #include <openssl>
 #include "reversepatch.h"
 #include "disasm/disassemble.h"
 #include "analysis/controlflow.h"
@@ -15,31 +14,54 @@
 // to get the signature of function
 
 void ReversePatch::compare() {
-  for(auto i = 0; i < elfsign.size(); ++i) {
-    auto pos = std::find(cmpelfsign.begin(), cmpelfsign.end(), elfsign[i]);
-    if(pos != cmpelfsign.end()) {
-      // remove matched function pair
-      elfsign.erase(elfsign.begin() + i);
-      cmpelfsign.erase(pos);
+  std::cout << "+===elfsign===+\n";
+  for(auto it = elfsign.begin(); it != elfsign.end(); ++it) {
+    std::cout << it->first << "\n";
+    std::cout << "numBB: " << it->second.numBB << "\n";
+    std::cout << "numInst: " << it->second.numInst << "\n";
+    for(auto it_ = it->second.fq_mnemonic.begin(); it_ != it->second.fq_mnemonic.end(); ++it_) {
+      std::cout << it_->first << ": " << it_->second << "; ";
     }
+    for(auto it_ = it->second.fq_type.begin(); it_ != it->second.fq_type.end(); ++it_) {
+      std::cout << it_->first << ": " << it_->second << "; ";
+    }
+    std::cout << "[";
+    for(auto i : it->second.callee) std::cout << i << ", ";
+    std::cout << "]\n";
+    std::cout << "[";
+    for(auto i : it->second.caller) std::cout << i << ", ";
+    std::cout << "]\n";
   }
-  std::cout << "finish comparison\n";
-  for(auto i : elfsign) std::cout << i << "\n";
-  std::cout << "cmpelfsign\n";
-  for(auto i : cmpelfsign) std::cout << i << "\n";
+  std::cout << "+===cmpelfsign===+\n";
+  for(auto it = cmpelfsign.begin(); it != cmpelfsign.end(); ++it) {
+    std::cout << it->first << "\n";
+    std::cout << "numBB: " << it->second.numBB << "\n";
+    std::cout << "numInst: " << it->second.numInst << "\n";
+    for(auto it_ = it->second.fq_mnemonic.begin(); it_ != it->second.fq_mnemonic.end(); ++it_) {
+      std::cout << it_->first << ": " << it_->second << "; ";
+    }
+    for(auto it_ = it->second.fq_type.begin(); it_ != it->second.fq_type.end(); ++it_) {
+      std::cout << it_->first << ": " << it_->second << "; ";
+    }
+    std::cout << "[";
+    for(auto i : it->second.callee) std::cout << i << ", ";
+    std::cout << "]\n";
+    std::cout << "[";
+    for(auto i : it->second.caller) std::cout << i << ", ";
+    std::cout << "]\n";
+  }
 }
 
 void ReversePatch::visit(Module *module) {
-  auto program = static_cast<Program *>(module->getParent());
+  //auto program = static_cast<Program *>(module->getParent());
   std::cout << "Compare module-[" << module->getName() << "] with module-[" << comparedModule->getName()
     << "]\n";
   recurse(module);
-  for(auto sig : fsign) { elfsign.push_back(sig); }
-  std::cout << "For elfsign: " << elfsign[0] << "\n";
+  elfsign = fsign;
   fsign.clear();
+
   recurse(comparedModule);
-  for(auto sig : fsign) { cmpelfsign.push_back(sig); }
-  std::cout << "For cmpelfsign: " << cmpelfsign[0] << "\n";
+  cmpelfsign = fsign;
   fsign.clear();
   std::cout << "start compare here!!\n";
   compare();
@@ -47,22 +69,28 @@ void ReversePatch::visit(Module *module) {
 
 void ReversePatch::visit(FunctionList *functionlist) {
   recurse(functionlist);
-  std::cout << "function list: " << fsign.size() << "\n";
 }
 
 void ReversePatch::visit(Function *function) {
+  // if function belongs to initFunctionList, then just skip
+  if(dynamic_cast<InitFunction *>(function)) return;
+  fs.funcname = function->getName();
   ControlFlowGraph cfg(function);
   // get num of basic block
-  sign += std::to_string(cfg.getCount());
+  fs.numBB = cfg.getCount();
   recurse(function);
-  std::cout << "function name: " << function->getName() << " with sign: " << sign << "\n";
-  fsign.push_back(sign);
-  sign = "";
+  std::unordered_map<std::string, int> freq_mnemonic;
+  std::unordered_map<std::string, int> freq_type;
+  for(auto &i : fs.mnemonic) freq_mnemonic[i]++;
+  for(auto &i : fs.instType) freq_type[i]++;
+  fs.fq_mnemonic = freq_mnemonic;
+  fs.fq_type = freq_type;
+  fsign[function->getName()] = fs;
 }
 
 void ReversePatch::visit(Block *block) {
   // get num of Instruction
-  sign += std::to_string(block->getChildren()->getIterable()->getCount());
+  fs.numInst = block->getChildren()->getIterable()->getCount();
   recurse(block);
 }
 
@@ -72,65 +100,81 @@ void ReversePatch::visit(Instruction *instruction) {
   auto semantic = instruction->getSemantic();
   #ifdef ARCH_X86_64
   if(dynamic_cast<DataLinkedControlFlowInstruction *>(semantic)) {
-    sign += dynamic_cast<DataLinkedControlFlowInstruction *>(semantic)->getAssembly()->getMnemonic();
-    std::cout << "operand: " << dynamic_cast<DataLinkedControlFlowInstruction *>(semantic)->getAssembly()->getOpStr() << "\n";
+    fs.mnemonic.push_back(dynamic_cast<DataLinkedControlFlowInstruction *>(semantic)->getAssembly()->getMnemonic());
+    fs.instType.push_back("DataLinkedCFI");
+    std::cout << "DataLinkedCFI: " << dynamic_cast<DataLinkedControlFlowInstruction *>(semantic)->getAssembly()->getOpStr() << "\n";
     return;
   }
   #endif
   if(dynamic_cast<IsolatedInstruction *>(semantic)) {
-    std::vector<std::string> s;
     // inherit SemanticImpl
-    sign += dynamic_cast<IsolatedInstruction *>(semantic)->getAssembly()->getMnemonic();
-    auto operand = dynamic_cast<IsolatedInstruction *>(semantic)->getAssembly()->getOpStr();
+    fs.mnemonic.push_back(dynamic_cast<IsolatedInstruction *>(semantic)->getAssembly()->getMnemonic());
+    fs.instType.push_back("Isolated");
   }
   else if (dynamic_cast<LinkedInstruction *>(semantic)) {
-    std::string signstr = dynamic_cast<LinkedInstruction *>(semantic)->getAssembly()->getMnemonic();
-    sign += signstr;
-    auto start = 0;
-    auto end = signstr.find("(", start);
-    std::cout << "offset to src reg: " << signstr.substr(start, end - start) << "\n";
-    start = end + 1;
-    end = signstr.find(")", start);
-    std::cout << "src reg: " << signstr.substr(start, end - start) << "\n";
-    start = end + 2;
-    std::cout << "dest reg: " << start << "\n";
+    fs.mnemonic.push_back(dynamic_cast<LinkedInstruction *>(semantic)->getAssembly()->getMnemonic());
+    fs.instType.push_back("Linked");
+    std::cout << "Linked: " << dynamic_cast<LinkedInstruction *>(semantic)->getAssembly()->getMnemonic() << "\n";
   }
   else if (dynamic_cast<ReturnInstruction *>(semantic)) {
-    sign += dynamic_cast<ReturnInstruction *>(semantic)->getAssembly()->getMnemonic();
+    fs.mnemonic.push_back(dynamic_cast<ReturnInstruction *>(semantic)->getAssembly()->getMnemonic());
+    fs.instType.push_back("Ret");
   }
   else if (dynamic_cast<IndirectCallInstruction *>(semantic)) {
     // inherit IsolatedInstruction
-    sign += dynamic_cast<IndirectCallInstruction *>(semantic)->getAssembly()->getMnemonic();
-    std::cout << "operand: " << dynamic_cast<IndirectCallInstruction *>(semantic)->getAssembly()->getOpStr() << "\n";
+    fs.mnemonic.push_back(dynamic_cast<IndirectCallInstruction *>(semantic)->getAssembly()->getMnemonic());
+    fs.instType.push_back("IndirectCall");
+    std::cout << "IndirectCall: " << dynamic_cast<IndirectCallInstruction *>(semantic)->getAssembly()->getOpStr() << "\n";
   }
   else if (dynamic_cast<StackFrameInstruction *>(semantic)) {
     // most have stack frame, so we don't consider as signature
-    sign += dynamic_cast<StackFrameInstruction *>(semantic)->getAssembly()->getMnemonic();
+    fs.mnemonic.push_back(dynamic_cast<StackFrameInstruction *>(semantic)->getAssembly()->getMnemonic());
+    fs.instType.push_back("StackFrame");
   }
   else if(dynamic_cast<LiteralInstruction *>(semantic)) {
     // inherit SemanticImpl
-    sign += dynamic_cast<LiteralInstruction *>(semantic)->getAssembly()->getMnemonic();
-    std::cout << "operand: " << dynamic_cast<LiteralInstruction *>(semantic)->getAssembly()->getOpStr() << "\n";
+    fs.mnemonic.push_back(dynamic_cast<LiteralInstruction *>(semantic)->getAssembly()->getMnemonic());
+    fs.instType.push_back("Literal");
+    std::cout << "Literal: " << dynamic_cast<LiteralInstruction *>(semantic)->getAssembly()->getOpStr() << "\n";
   }
   else if(dynamic_cast<LinkedLiteralInstruction *>(semantic)) {
-    sign += dynamic_cast<LinkedLiteralInstruction *>(semantic)->getAssembly()->getMnemonic();
-    std::cout << "operand: " << dynamic_cast<LinkedLiteralInstruction *>(semantic)->getAssembly()->getOpStr() << "\n";
+    fs.mnemonic.push_back(dynamic_cast<LinkedLiteralInstruction *>(semantic)->getAssembly()->getMnemonic());
+    fs.instType.push_back("LinkedLiteral");
+    std::cout << "LinkedLiteral: " << dynamic_cast<LinkedLiteralInstruction *>(semantic)->getAssembly()->getOpStr() << "\n";
   }
   else if(dynamic_cast<ControlFlowInstruction *>(semantic)) {
     auto s = dynamic_cast<ControlFlowInstruction *>(semantic);
-    sign += s->getMnemonic();
+    fs.mnemonic.push_back(s->getMnemonic());
+    fs.instType.push_back("CFI");
+    std::cout << "ControlFlowInstruction: " << s->getMnemonic() << "\n";
     // get callee
     if(s->getMnemonic() == "callq") {
       auto link = s->getLink();
       if(!link) return;
       if(auto target = dynamic_cast<Function *>(&*link->getTarget())) {
-        std::cout << "callee function name: " << target->getName() << "\n";
+        std::cout << "callee function name of " << instruction->getParent()->getParent()->getName() << ": "
+          << target->getName() << "\n";
+        if(target->getName() == instruction->getParent()->getParent()->getName()) {
+          fs.callee.push_back("self");
+        }else {
+          fs.callee.push_back(target->getName());
+        }
+      }
+      if(auto caller = s->getSource()) {
+        std::cout << "caller function name of " << instruction->getParent()->getParent()->getName() << ": "
+          << caller->getParent()->getParent()->getName() << "\n";
+        if(caller->getParent()->getParent()->getName() == instruction->getParent()->getParent()->getName()) {
+          fs.caller.push_back("self");
+        }else {
+          fs.caller.push_back(caller->getParent()->getParent()->getName());
+        }
       }
     }
   }
   else if(dynamic_cast<IndirectJumpInstruction *>(semantic)) {
     // inherit IndirectControlFlowInstructionBase
-    sign += dynamic_cast<IndirectJumpInstruction *>(semantic)->getMnemonic();
-    std::cout << "operand: " << dynamic_cast<IndirectJumpInstruction *>(semantic)->getAssembly()->getOpStr() << "\n";
+    fs.mnemonic.push_back(dynamic_cast<IndirectJumpInstruction *>(semantic)->getMnemonic());
+    fs.instType.push_back("IndirectJmp");
+    std::cout << "IndirectJmp: " << dynamic_cast<IndirectJumpInstruction *>(semantic)->getAssembly()->getOpStr() << "\n";
   }
 }

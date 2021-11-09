@@ -2,26 +2,40 @@
 #define EGALITO_PASS_REVERSEPATCH_H
 
 #include <vector>
+#include <unordered_map>
 #include "chunkpass.h"
 #include "instr/visitor.h"
 #include "instr/concrete.h"
 
+class FuncSignature {
+public:
+  int numBB;
+  int numInst;
+  std::string funcname;
+  std::vector<std::string> mnemonic;
+  std::vector<std::string> instType;
+  std::unordered_map<std::string, int> fq_mnemonic;
+  std::unordered_map<std::string, int> fq_type;
+  std::vector<std::string> caller;
+  std::vector<std::string> callee;
+  FuncSignature() {}
+};
+
 class ReversePatch : public ChunkPass {
 private:
   Module *comparedModule;
-  std::vector<std::string> elfsign;
-  std::vector<std::string> cmpelfsign;
-  std::vector<std::string> fsign;
-  std::string sign;
-  std::vector<std::vector<std::string>> sg;
+  FuncSignature fs;
+  std::unordered_map<std::string, FuncSignature> elfsign;
+  std::unordered_map<std::string, FuncSignature> cmpelfsign;
+  std::unordered_map<std::string, FuncSignature> fsign;
 public:
   ReversePatch(Module *comparedModule) : comparedModule(comparedModule) {}
   virtual ~ReversePatch() { std::cout << "Revdone\n"; }
   void compare();
-  virtual void visit(Module *module);
-  virtual void visit(FunctionList *functionlist);
-  virtual void visit(Function *function);
-  virtual void visit(Block *block);
-  virtual void visit(Instruction *instruction);
+  void visit(Module *module);
+  void visit(FunctionList *functionlist);
+  void visit(Function *function);
+  void visit(Block *block);
+  void visit(Instruction *instruction);
 };
 #endif
