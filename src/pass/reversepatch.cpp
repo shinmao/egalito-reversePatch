@@ -25,7 +25,7 @@ void ReversePatch::compare() {
     for(auto it_ = it->second.fq_type.begin(); it_ != it->second.fq_type.end(); ++it_) {
       std::cout << it_->first << ": " << it_->second << "; ";
     }
-    std::cout << "[";
+    std::cout << "\n[";
     for(auto i : it->second.callee) std::cout << i << ", ";
     std::cout << "]\n";
     std::cout << "[";
@@ -86,11 +86,13 @@ void ReversePatch::visit(Function *function) {
   fs.fq_mnemonic = freq_mnemonic;
   fs.fq_type = freq_type;
   fsign[function->getName()] = fs;
+  freq_mnemonic.clear();
+  freq_type.clear();
 }
 
 void ReversePatch::visit(Block *block) {
   // get num of Instruction
-  fs.numInst = block->getChildren()->getIterable()->getCount();
+  fs.numInst += block->getChildren()->getIterable()->getCount();
   recurse(block);
 }
 
