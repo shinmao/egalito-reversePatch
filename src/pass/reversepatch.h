@@ -9,8 +9,8 @@
 
 class FuncSignature {
 public:
-  int numBB;
-  int numInst;
+  int numBB = 0;
+  int numInst = 0;
   std::string funcname;
   std::vector<std::string> mnemonic;
   std::vector<std::string> instType;
@@ -25,6 +25,7 @@ class ReversePatch : public ChunkPass {
 private:
   Module *comparedModule;
   FuncSignature fs;
+  int inst_counter = 0;
   std::unordered_map<std::string, FuncSignature> elfsign;
   std::unordered_map<std::string, FuncSignature> cmpelfsign;
   std::unordered_map<std::string, FuncSignature> fsign;

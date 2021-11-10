@@ -22,13 +22,14 @@ void ReversePatch::compare() {
     for(auto it_ = it->second.fq_mnemonic.begin(); it_ != it->second.fq_mnemonic.end(); ++it_) {
       std::cout << it_->first << ": " << it_->second << "; ";
     }
+    std::cout << "\n";
     for(auto it_ = it->second.fq_type.begin(); it_ != it->second.fq_type.end(); ++it_) {
       std::cout << it_->first << ": " << it_->second << "; ";
     }
-    std::cout << "\n[";
+    std::cout << "\nWho is called by me: [";
     for(auto i : it->second.callee) std::cout << i << ", ";
     std::cout << "]\n";
-    std::cout << "[";
+    std::cout << "Who calls me: [";
     for(auto i : it->second.caller) std::cout << i << ", ";
     std::cout << "]\n";
   }
@@ -40,13 +41,14 @@ void ReversePatch::compare() {
     for(auto it_ = it->second.fq_mnemonic.begin(); it_ != it->second.fq_mnemonic.end(); ++it_) {
       std::cout << it_->first << ": " << it_->second << "; ";
     }
+    std::cout << "\n";
     for(auto it_ = it->second.fq_type.begin(); it_ != it->second.fq_type.end(); ++it_) {
       std::cout << it_->first << ": " << it_->second << "; ";
     }
-    std::cout << "[";
+    std::cout << "\nWho is called by me: [";
     for(auto i : it->second.callee) std::cout << i << ", ";
     std::cout << "]\n";
-    std::cout << "[";
+    std::cout << "Who calls me: [";
     for(auto i : it->second.caller) std::cout << i << ", ";
     std::cout << "]\n";
   }
@@ -73,7 +75,7 @@ void ReversePatch::visit(FunctionList *functionlist) {
 
 void ReversePatch::visit(Function *function) {
   // if function belongs to initFunctionList, then just skip
-  if(dynamic_cast<InitFunction *>(function)) return;
+  std::cout << "+================" << function->getName() << "================+\n";
   fs.funcname = function->getName();
   ControlFlowGraph cfg(function);
   // get num of basic block
@@ -81,24 +83,31 @@ void ReversePatch::visit(Function *function) {
   recurse(function);
   std::unordered_map<std::string, int> freq_mnemonic;
   std::unordered_map<std::string, int> freq_type;
-  for(auto &i : fs.mnemonic) freq_mnemonic[i]++;
-  for(auto &i : fs.instType) freq_type[i]++;
+  for(auto i : fs.mnemonic) {
+    freq_mnemonic[i]++;
+  }
+  for(auto i : fs.instType) {
+    freq_type[i]++;
+  }
   fs.fq_mnemonic = freq_mnemonic;
   fs.fq_type = freq_type;
   fsign[function->getName()] = fs;
   freq_mnemonic.clear();
   freq_type.clear();
+  fs = FuncSignature();
 }
 
 void ReversePatch::visit(Block *block) {
   // get num of Instruction
-  fs.numInst += block->getChildren()->getIterable()->getCount();
   recurse(block);
+  fs.numInst += inst_counter;
+  inst_counter = 0;
 }
 
 void ReversePatch::visit(Instruction *instruction) {
   // InstructionSign inssign;
   // instruction->getSemantic()->accept(&inssign);
+  inst_counter++;
   auto semantic = instruction->getSemantic();
   #ifdef ARCH_X86_64
   if(dynamic_cast<DataLinkedControlFlowInstruction *>(semantic)) {
@@ -150,26 +159,24 @@ void ReversePatch::visit(Instruction *instruction) {
     fs.instType.push_back("CFI");
     std::cout << "ControlFlowInstruction: " << s->getMnemonic() << "\n";
     // get callee
-    if(s->getMnemonic() == "callq") {
-      auto link = s->getLink();
-      if(!link) return;
-      if(auto target = dynamic_cast<Function *>(&*link->getTarget())) {
-        std::cout << "callee function name of " << instruction->getParent()->getParent()->getName() << ": "
-          << target->getName() << "\n";
-        if(target->getName() == instruction->getParent()->getParent()->getName()) {
-          fs.callee.push_back("self");
-        }else {
-          fs.callee.push_back(target->getName());
-        }
+    auto link = s->getLink();
+    if(!link) return;
+    if(auto target = dynamic_cast<Function *>(&*link->getTarget())) {
+      std::cout << "callee function name of " << instruction->getParent()->getParent()->getName() << ": "
+        << target->getName() << "\n";
+      if(target->getName() == instruction->getParent()->getParent()->getName()) {
+        fs.callee.push_back("self");
+      }else {
+        fs.callee.push_back(target->getName());
       }
-      if(auto caller = s->getSource()) {
-        std::cout << "caller function name of " << instruction->getParent()->getParent()->getName() << ": "
-          << caller->getParent()->getParent()->getName() << "\n";
-        if(caller->getParent()->getParent()->getName() == instruction->getParent()->getParent()->getName()) {
-          fs.caller.push_back("self");
-        }else {
-          fs.caller.push_back(caller->getParent()->getParent()->getName());
-        }
+    }
+    if(auto caller = s->getSource()) {
+      std::cout << "caller function name of " << instruction->getParent()->getParent()->getName() << ": "
+        << caller->getParent()->getParent()->getName() << "\n";
+      if(caller->getParent()->getParent()->getName() == instruction->getParent()->getParent()->getName()) {
+        fs.caller.push_back("self");
+      }else {
+        fs.caller.push_back(caller->getParent()->getParent()->getName());
       }
     }
   }
