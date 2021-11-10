@@ -1,0 +1,78 @@
++===cmpelfsign===+
+__libc_csu_init
+numBB: 6
+numInst: 21
+retq: 1; popq: 6; pushq: 6; leaq: 2; movl: 2; movq: 4; xorl: 1; callq: 2; addq: 2; subq: 2; jne: 1; sarq: 1; je: 1; nopl: 1; cmpq: 1; 
+CFI: 3; Linked: 2; Isolated: 1c; 
+Who is called by me: [_init, ]
+Who calls me: [self, self, self, ]
+func
+numBB: 4
+numInst: e
+leave: 1; leaq: 1; retq: 1; jbe: 1; cmpq: 1; callq: 2; subq: 1; nop: 1; movq: 4; pushq: 1; 
+Linked: 1; CFI: 3; Isolated: a; 
+Who is called by me: []
+Who calls me: [self, self, self, ]
+_fini
+numBB: 1
+numInst: 3
+retq: 1; addq: 1; subq: 1; 
+Isolated: 3; 
+Who is called by me: []
+Who calls me: []
+_start
+numBB: 2
+numInst: c
+hlt: 1; callq: 1; leaq: 3; pushq: 2; popq: 1; andq: 1; movq: 2; xorl: 1; 
+DataLinkedCFI: 1; Linked: 3; Isolated: 8; 
+Who is called by me: []
+Who calls me: []
+_init
+numBB: 3
+numInst: 7
+retq: 1; addq: 1; callq: 1; je: 1; movq: 1; testq: 1; subq: 1; 
+CFI: 1; Linked: 1; Isolated: 5; 
+Who is called by me: []
+Who calls me: [self, ]
+__libc_csu_fini
+numBB: 1
+numInst: 1
+retq: 1; 
+Isolated: 1; 
+Who is called by me: []
+Who calls me: []
+frame_dummy
+numBB: 1
+numInst: 1
+jmp: 1; 
+CFI: 1; 
+Who is called by me: [register_tm_clones, ]
+Who calls me: [self, ]
+__do_global_dtors_aux
+numBB: 8
+numInst: f
+popq: 1; movb: 1; nopl: 2; je: 1; movq: 2; retq: 2; cmpq: 1; pushq: 1; callq: 2; jne: 1; cmpb: 1; 
+Isolated: 7; CFI: 4; Linked: 4; 
+Who is called by me: [deregister_tm_clones, ]
+Who calls me: [self, self, self, self, ]
+register_tm_clones
+numBB: 6
+numInst: 10
+retq: 1; jmpq: 1; addq: 1; nopl: 1; nopw: 1; je: 2; sarq: 2; shrq: 1; movq: 2; testq: 1; subq: 1; leaq: 2; 
+CFI: 2; Isolated: b; Linked: 3; 
+Who is called by me: []
+Who calls me: [self, self, ]
+main
+numBB: 3
+numInst: 14
+retq: 1; leave: 1; callq: 2; addq: 2; leaq: 1; movl: 3; subq: 1; movq: 8; pushq: 1; 
+Linked: 1; CFI: 2; Isolated: 11; 
+Who is called by me: [func, ]
+Who calls me: [self, self, ]
+deregister_tm_clones
+numBB: 6
+numInst: b
+jmpq: 1; testq: 1; movq: 1; nopl: 2; je: 2; retq: 1; cmpq: 1; leaq: 2; 
+CFI: 2; Isolated: 6; Linked: 3; 
+Who is called by me: []
+Who calls me: [self, self, ]
