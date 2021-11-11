@@ -59,16 +59,25 @@ void ReversePatch::visit(Module *module) {
   auto program = static_cast<Program *>(module->getParent());
   std::cout << "Compare module-[" << module->getName() << "] with module-[" << comparedModule->getName()
     << "]\n";
+  recurse(module->getInitFunctionList());
   recurse(module);
   elfsign = fsign;
   fsign.clear();
-
+  initFunctionList.clear();
+  
+  recurse(comparedModule->getInitFunctionList());
   recurse(comparedModule);
   cmpelfsign = fsign;
   fsign.clear();
+  initFunctionList.clear();
   
   std::cout << "start compare here!!\n";
   compare();
+}
+
+void ReversePatch::visit(InitFunction *initFunction) {
+  std::cout << "Init Function: " << initFunction->getName() << "\n";
+  initFunctionList.push_back(initFunction->getName());
 }
 
 void ReversePatch::visit(FunctionList *functionlist) {
@@ -77,6 +86,10 @@ void ReversePatch::visit(FunctionList *functionlist) {
 
 void ReversePatch::visit(Function *function) {
   // if function belongs to initFunctionList, then just skip
+  if(std::find(initFunctionList.begin(), initFunctionList.end(), function->getName()) != initFunctionList.end()) {
+	  std::cout << function->getName() << " belongs to initfunction\n";
+	  return;
+  }
   std::cout << "+================" << function->getName() << "================+\n";
   // find number of syscall based on each function
   FindSyscalls findSyscalls;
@@ -144,6 +157,12 @@ void ReversePatch::visit(Instruction *instruction) {
     fs.mnemonic.push_back(dynamic_cast<LinkedInstruction *>(semantic)->getAssembly()->getMnemonic());
     fs.instType.push_back("Linked");
     std::cout << "Linked: " << dynamic_cast<LinkedInstruction *>(semantic)->getAssembly()->getMnemonic() << "\n";
+    // instruction to call plt
+    auto link = dynamic_cast<LinkedInstruction *>(semantic)->getLink();
+    auto target = link->getTarget();
+    if(auto plt = dynamic_cast<PLTTrampoline *>(target)) {
+	    std::cout << "Call plt " << plt->getName() << "\n";
+    }
   }
   else if (dynamic_cast<ReturnInstruction *>(semantic)) {
     fs.mnemonic.push_back(dynamic_cast<ReturnInstruction *>(semantic)->getAssembly()->getMnemonic());

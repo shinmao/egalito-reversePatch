@@ -7,6 +7,17 @@
 #include "instr/visitor.h"
 #include "instr/concrete.h"
 
+/**
+ * Function Signature
+ * numBB: number of basic block
+ * numInst: number of instruction
+ * numSyscall: number of syscall in each function, not including the one wrapped in libc
+ * instType: sequence of instruction type, e.g. IsolatedInstruction, Controlflowinstruction
+ * fq_: statistics of features
+ * caller: who calls this function
+ * callee: who is called by this function
+ */
+
 class FuncSignature {
 public:
   int numBB = 0;
@@ -27,6 +38,7 @@ private:
   Module *comparedModule;
   FuncSignature fs;
   int inst_counter = 0;
+  std::vector<std::string> initFunctionList;   // we can skip comparing on initFunction
   std::unordered_map<std::string, FuncSignature> elfsign;
   std::unordered_map<std::string, FuncSignature> cmpelfsign;
   std::unordered_map<std::string, FuncSignature> fsign;
@@ -35,6 +47,7 @@ public:
   virtual ~ReversePatch() { std::cout << "Revdone\n"; }
   void compare();
   void visit(Module *module);
+  void visit(InitFunction *initFunction);
   void visit(FunctionList *functionlist);
   void visit(Function *function);
   void visit(Block *block);
