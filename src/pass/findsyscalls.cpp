@@ -32,6 +32,7 @@ void FindSyscalls::visit(Function *function) {
             auto assembly = instr->getSemantic()->getAssembly();
             auto state = working->getState(instr);
             if (assembly && assembly->getId() == X86_INS_SYSCALL) {
+		std::cout << "Find Syscall in " << function->getName() << "\n";
                 std::set<unsigned long> values;
                 seen.clear();
                 auto rax = X86Register::convertToPhysical(X86_REG_RAX);
