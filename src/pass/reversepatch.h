@@ -11,6 +11,7 @@ class FuncSignature {
 public:
   int numBB = 0;
   int numInst = 0;
+  int numSyscall = 0;
   std::string funcname;
   std::vector<std::string> mnemonic;
   std::vector<std::string> instType;

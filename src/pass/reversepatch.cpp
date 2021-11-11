@@ -2,6 +2,7 @@
 #include <string>
 #include <algorithm>
 #include "reversepatch.h"
+#include "findsyscalls.h"
 #include "disasm/disassemble.h"
 #include "analysis/controlflow.h"
 #include "instr/linked-x86_64.h"
@@ -14,7 +15,7 @@
 // to get the signature of function
 
 void ReversePatch::compare() {
-  std::cout << "+===elfsign===+\n";
+  std::cout << "+===================elfsign====================+\n";
   for(auto it = elfsign.begin(); it != elfsign.end(); ++it) {
     std::cout << it->first << "\n";
     std::cout << "numBB: " << it->second.numBB << "\n";
@@ -33,7 +34,7 @@ void ReversePatch::compare() {
     for(auto i : it->second.caller) std::cout << i << ", ";
     std::cout << "]\n";
   }
-  std::cout << "+===cmpelfsign===+\n";
+  std::cout << "+====================cmpelfsign====================+\n";
   for(auto it = cmpelfsign.begin(); it != cmpelfsign.end(); ++it) {
     std::cout << it->first << "\n";
     std::cout << "numBB: " << it->second.numBB << "\n";
@@ -55,7 +56,7 @@ void ReversePatch::compare() {
 }
 
 void ReversePatch::visit(Module *module) {
-  //auto program = static_cast<Program *>(module->getParent());
+  auto program = static_cast<Program *>(module->getParent());
   std::cout << "Compare module-[" << module->getName() << "] with module-[" << comparedModule->getName()
     << "]\n";
   recurse(module);
@@ -65,6 +66,7 @@ void ReversePatch::visit(Module *module) {
   recurse(comparedModule);
   cmpelfsign = fsign;
   fsign.clear();
+  
   std::cout << "start compare here!!\n";
   compare();
 }
@@ -76,10 +78,25 @@ void ReversePatch::visit(FunctionList *functionlist) {
 void ReversePatch::visit(Function *function) {
   // if function belongs to initFunctionList, then just skip
   std::cout << "+================" << function->getName() << "================+\n";
+  // find number of syscall based on each function
+  FindSyscalls findSyscalls;
+  function->accept(&findSyscalls);
+  auto list = findSyscalls.getNumberMap();
+  for(auto it : list) {
+	  auto syscallInstr = it.first;
+	  auto syscallValues = it.second;
+	  // syscall are unique for single instr
+	  // but not unique in multiple instr
+	  std::cout << "syscall: " << syscallValues.size() << "\n";
+	  fs.numSyscall += syscallValues.size();
+  }
+  std::cout << "num of syscall: " << fs.numSyscall << "\n";
+
   fs.funcname = function->getName();
   ControlFlowGraph cfg(function);
   // get num of basic block
   fs.numBB = cfg.getCount();
+  // recurse means after finish single function
   recurse(function);
   std::unordered_map<std::string, int> freq_mnemonic;
   std::unordered_map<std::string, int> freq_type;
@@ -99,6 +116,7 @@ void ReversePatch::visit(Function *function) {
 
 void ReversePatch::visit(Block *block) {
   // get num of Instruction
+  // recurse means after finish one bb
   recurse(block);
   fs.numInst += inst_counter;
   inst_counter = 0;
