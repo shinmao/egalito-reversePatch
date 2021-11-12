@@ -2,6 +2,7 @@
 #define EGALITO_PASS_REVERSEPATCH_H
 
 #include <vector>
+#include <set>
 #include <unordered_map>
 #include "chunkpass.h"
 #include "instr/visitor.h"
@@ -24,12 +25,16 @@ public:
   int numInst = 0;
   int numSyscall = 0;
   std::string funcname;
+  std::string signature;
   std::vector<std::string> mnemonic;
   std::vector<std::string> instType;
-  std::unordered_map<std::string, int> fq_mnemonic;
-  std::unordered_map<std::string, int> fq_type;
+  std::vector<int> fq_mnemonic;
+  std::vector<int> fq_type;
   std::vector<std::string> caller;
   std::vector<std::string> callee;
+  std::vector<int> fq_calle;
+  std::vector<std::string> callplt;
+  std::vector<int> fq_callplt;
   FuncSignature() {}
 };
 
@@ -42,10 +47,16 @@ private:
   std::unordered_map<std::string, FuncSignature> elfsign;
   std::unordered_map<std::string, FuncSignature> cmpelfsign;
   std::unordered_map<std::string, FuncSignature> fsign;
+  std::set<std::string> mnemonic_set;
+  std::set<std::string> type_set;
+  std::set<std::string> calle_set;
+  std::set<std::string> plt_set;
 public:
   ReversePatch(Module *comparedModule) : comparedModule(comparedModule) {}
   virtual ~ReversePatch() { std::cout << "Revdone\n"; }
-  void compare();
+  void compareLog();
+  void mergeTable(std::unordered_map<std::string, FuncSignature> &elfsig);
+  void hashsign(std::unordered_map<std::string, FuncSignature> &elfsig);
   void visit(Module *module);
   void visit(InitFunction *initFunction);
   void visit(FunctionList *functionlist);
