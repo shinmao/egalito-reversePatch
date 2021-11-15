@@ -65,7 +65,7 @@ void ReversePatch::mergeTable(std::unordered_map<std::string, FuncSignature> &el
   }
 }
 
-void ReversePatch::hashsign(std::unordered_map<std::string, FuncSignature> &elfsig) {
+void ReversePatch::hashsign(std::unordered_map<std::string, FuncSignature> &elfsig, std::unordered_map<std::string, std::string> &sign2name) {
   // [ numBB | numInst | numSyscall | fq_mnemonic | fq_type | fq_calle | fq_callplt ]
   std::cout << "start working on generating hash for two binaries\n";
   for(auto i = elfsig.begin(); i != elfsig.end(); ++i) {
@@ -86,7 +86,22 @@ void ReversePatch::hashsign(std::unordered_map<std::string, FuncSignature> &elfs
       res += std::to_string(plt);
     }
     i->second.signature = res;
+    // map hash sign to function name in another map elf/cmp
+    sign2name[res] = i->second.funcname;
   }
+  std::cout << "consider_visiting: " << elfsig["consider_visiting"].signature << "\n";
+  std::cout << "find: " << elfsig["find"].signature << "\n";
+  std::cout << "===================\n";
+}
+
+void ReversePatch::findPatched(std::unordered_map<std::string, std::string> &elf, std::unordered_map<std::string, std::string> &cmp) {
+  std::cout << "finding patched function in elf:\n";
+  for(auto i = elf.begin(); i != elf.end(); ++i) {
+    if(cmp.count(i->first) == 0) {
+      std::cout << i->second << " function is patched\n";
+    }
+  }
+  std::cout << "===================\n";
 }
 
 void ReversePatch::visit(Module *module) {
@@ -109,10 +124,11 @@ void ReversePatch::visit(Module *module) {
   mergeTable(elfsign);
   mergeTable(cmpelfsign);
 
-  hashsign(elfsign);
-  hashsign(cmpelfsign);
-  std::cout << "sign of main in elf: " << elfsign["main"].signature << "\n";
-  std::cout << "sign of main in cmp: " << cmpelfsign["main"].signature << "\n";
+  hashsign(elfsign, elf);
+  hashsign(cmpelfsign, cmp);
+
+  findPatched(elf, cmp);
+  findPatched(cmp, elf);
 }
 
 void ReversePatch::visit(InitFunction *initFunction) {

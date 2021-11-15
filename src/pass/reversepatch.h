@@ -46,6 +46,9 @@ private:
   std::vector<std::string> initFunctionList;   // we can skip comparing on initFunction
   std::unordered_map<std::string, FuncSignature> elfsign;
   std::unordered_map<std::string, FuncSignature> cmpelfsign;
+  // used for locate patched function: <hash sign, function name>
+  std::unordered_map<std::string, std::string> elf;
+  std::unordered_map<std::string, std::string> cmp;
   std::unordered_map<std::string, FuncSignature> fsign;
   std::set<std::string> mnemonic_set;
   std::set<std::string> type_set;
@@ -56,7 +59,8 @@ public:
   virtual ~ReversePatch() { std::cout << "Revdone\n"; }
   void compareLog();
   void mergeTable(std::unordered_map<std::string, FuncSignature> &elfsig);
-  void hashsign(std::unordered_map<std::string, FuncSignature> &elfsig);
+  void hashsign(std::unordered_map<std::string, FuncSignature> &elfsig, std::unordered_map<std::string, std::string> &sign2name);
+  void findPatched(std::unordered_map<std::string, std::string> &elf, std::unordered_map<std::string, std::string> &cmp);
   void visit(Module *module);
   void visit(InitFunction *initFunction);
   void visit(FunctionList *functionlist);
