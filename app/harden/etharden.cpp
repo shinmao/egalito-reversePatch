@@ -52,8 +52,9 @@ void HardenApp::revparse(const std::string &filename1, const std::string &filena
         else {
             std::cout << "Parsing two ELF files with all shared library dependencies...\n";
         }
-        egalito->parse(filename1, !oneToOne);
-        comparedModule = egalito->parse(filename2, Library::ROLE_EXTRA, false);
+        //egalito->parse(filename1, !oneToOne);
+	egalito->parse(filename1, true);
+        comparedModule = egalito->parse(filename2, Library::ROLE_EXTRA, true);
     }
     catch(const char *message) {
         std::cout << "Exception: " << message << std::endl;

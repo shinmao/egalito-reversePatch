@@ -205,7 +205,10 @@ void ReversePatch::visit(Instruction *instruction) {
     mnemonic_set.insert(dynamic_cast<LinkedInstruction *>(semantic)->getAssembly()->getMnemonic());
     fs.instType.push_back("Linked");
     type_set.insert("Linked");
-    std::cout << "Linked: " << dynamic_cast<LinkedInstruction *>(semantic)->getAssembly()->getMnemonic() << "\n";
+    std::cout << "Linked: " << dynamic_cast<LinkedInstruction *>(semantic)->getAssembly()->getMnemonic();
+    std::cout << " with target: " << dynamic_cast<LinkedInstruction *>(semantic)->getLink()->getTargetAddress() << " ";
+    std::cout << "DispSize: " << dynamic_cast<LinkedInstruction *>(semantic)->getDispSize() << " ";
+    std::cout << "DispOffset: " << dynamic_cast<LinkedInstruction *>(semantic)->getDispOffset() << "\n";
   }
   else if (dynamic_cast<ReturnInstruction *>(semantic)) {
     fs.mnemonic.push_back(dynamic_cast<ReturnInstruction *>(semantic)->getAssembly()->getMnemonic());
@@ -290,6 +293,23 @@ void ReversePatch::visit(Instruction *instruction) {
   }
 }
 
+void ReversePatch::visit(DataSection *dataSection) {
+  std::cout << "Visiting " << dataSection->getName() << "\n";
+  for(auto var : CIter::children(dataSection)) {
+     if(!var->getDest()) {
+	     continue;
+     }
+     auto target = var->getDest()->getTarget();
+     std::cout << "var: " << var->getAddress();
+     if(target) {
+	     std::cout << " --> " << target->getName() << "\n";
+     }
+  }
+  for(auto var : dataSection->getGlobalVariables()) {
+     std::cout << "global var: " << var->getName() << " with size: " << var->getSize() << " with address: " << var->getAddress() << "\n";
+  }
+}
+
 void ReversePatch::visit(DataVariable *dataVariable) {
   std::cout << "data variable at " << dataVariable->getAddress();
   auto target = dataVariable->getDest() ? dataVariable->getDest()->getTarget() : nullptr;
@@ -299,3 +319,7 @@ void ReversePatch::visit(DataVariable *dataVariable) {
     std::cout << "\n";
   }
 }
+//
+// void ReversePatch::visit(GlobalVariable *globalVariable) {
+//   std::cout << "global variable at " << globalVariable->getAddress() << "\n";
+// }

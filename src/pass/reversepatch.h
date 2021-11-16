@@ -69,7 +69,8 @@ public:
   void visit(Block *block);
   void visit(Instruction *instruction);
   void visit(DataRegion *dataRegion) { recurse(dataRegion); }
-  void visit(DataSection *dataSection) { recurse(dataSection); }
+  void visit(DataSection *dataSection);
   void visit(DataVariable *dataVariable);
+  // void visit(GlobalVariable *globalVariable);
 };
 #endif
