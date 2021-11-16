@@ -63,9 +63,13 @@ public:
   void findPatched(std::unordered_map<std::string, std::string> &elf, std::unordered_map<std::string, std::string> &cmp);
   void visit(Module *module);
   void visit(InitFunction *initFunction);
-  void visit(FunctionList *functionlist);
+  void visit(FunctionList *functionlist) { recurse(functionlist); }
+  void visit(DataRegionList *dataRegionList) { recurse(dataRegionList); }
   void visit(Function *function);
   void visit(Block *block);
   void visit(Instruction *instruction);
+  void visit(DataRegion *dataRegion) { recurse(dataRegion); }
+  void visit(DataSection *dataSection) { recurse(dataSection); }
+  void visit(DataVariable *dataVariable);
 };
 #endif

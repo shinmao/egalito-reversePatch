@@ -109,12 +109,14 @@ void ReversePatch::visit(Module *module) {
   std::cout << "Compare module-[" << module->getName() << "] with module-[" << comparedModule->getName()
     << "]\n";
   recurse(module->getInitFunctionList());
+  recurse(module->getDataRegionList());
   recurse(module);
   elfsign = fsign;
   fsign.clear();
   initFunctionList.clear();
 
   recurse(comparedModule->getInitFunctionList());
+  recurse(comparedModule->getDataRegionList());
   recurse(comparedModule);
   cmpelfsign = fsign;
   fsign.clear();
@@ -134,10 +136,6 @@ void ReversePatch::visit(Module *module) {
 void ReversePatch::visit(InitFunction *initFunction) {
   std::cout << "Init Function: " << initFunction->getName() << "\n";
   initFunctionList.push_back(initFunction->getName());
-}
-
-void ReversePatch::visit(FunctionList *functionlist) {
-  recurse(functionlist);
 }
 
 void ReversePatch::visit(Function *function) {
@@ -289,5 +287,15 @@ void ReversePatch::visit(Instruction *instruction) {
     fs.instType.push_back("IndirectJmp");
     type_set.insert("IndirectJmp");
     std::cout << "IndirectJmp: " << dynamic_cast<IndirectJumpInstruction *>(semantic)->getAssembly()->getOpStr() << "\n";
+  }
+}
+
+void ReversePatch::visit(DataVariable *dataVariable) {
+  std::cout << "data variable at " << dataVariable->getAddress();
+  auto target = dataVariable->getDest() ? dataVariable->getDest()->getTarget() : nullptr;
+  if(target) {
+    std::cout << " --> " << target->getName() << "\n";
+  }else {
+    std::cout << "\n";
   }
 }
