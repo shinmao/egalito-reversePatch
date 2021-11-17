@@ -89,8 +89,6 @@ void ReversePatch::hashsign(std::unordered_map<std::string, FuncSignature> &elfs
     // map hash sign to function name in another map elf/cmp
     sign2name[res] = i->second.funcname;
   }
-  std::cout << "consider_visiting: " << elfsig["consider_visiting"].signature << "\n";
-  std::cout << "find: " << elfsig["find"].signature << "\n";
   std::cout << "===================\n";
 }
 
@@ -319,7 +317,3 @@ void ReversePatch::visit(DataVariable *dataVariable) {
     std::cout << "\n";
   }
 }
-//
-// void ReversePatch::visit(GlobalVariable *globalVariable) {
-//   std::cout << "global variable at " << globalVariable->getAddress() << "\n";
-// }

@@ -71,6 +71,5 @@ public:
   void visit(DataRegion *dataRegion) { recurse(dataRegion); }
   void visit(DataSection *dataSection);
   void visit(DataVariable *dataVariable);
-  // void visit(GlobalVariable *globalVariable);
 };
 #endif
