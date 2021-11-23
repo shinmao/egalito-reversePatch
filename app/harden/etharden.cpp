@@ -41,7 +41,7 @@ void HardenApp::parse(const std::string &filename, bool oneToOne) {
 void HardenApp::revparse(const std::string &filename1, const std::string &filename2, bool oneToOne) {
     egalito = new EgalitoInterface(!quiet, true);
 
-    std::cout << "Tansforming two files [" << filename1 << ", " << filename2 << "]\n";
+    std::cout << "Tansforming two files [" << filename1 << ", " << filename2 << "] on " << funcname << "()\n";
 
     try {
         egalito->initializeParsing();
@@ -115,10 +115,10 @@ void HardenApp::doRetpolines() {
 }
 
 void HardenApp::doRevpatch() {
-    std::cout << "Comparing two modules...\n";
+    std::cout << "Comparing two modules on function: " << funcname << "\n";
     auto program = getProgram();
     auto module = program->getMain();
-    ReversePatch revpatch(comparedModule);
+    ReversePatch revpatch(comparedModule, funcname);
     module->accept(&revpatch);
     //RUN_PASS(ReversePatch(), getProgram());
 }
@@ -215,6 +215,7 @@ void HardenApp::run(int argc, char **argv) {
         else if(argv[a] && argv[a + 1] && argv[a + 2]) {
             // case for rev ReversePatch
             // parse two binary and map to memory at the same time
+	    funcname = argv[a + 2];
             revparse(argv[a], argv[a + 1], oneToOne);
             for(auto op : ops) {
               techniques[op]();

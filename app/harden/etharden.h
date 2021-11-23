@@ -7,7 +7,9 @@ class HardenApp {
 private:
     bool quiet;
     EgalitoInterface *egalito;
+    // for revpatch
     Module *comparedModule;
+    std::string funcname;
 public:
     HardenApp() : quiet(true), comparedModule(nullptr) {}
     void run(int argc, char **argv);

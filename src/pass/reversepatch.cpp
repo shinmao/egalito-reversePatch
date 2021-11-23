@@ -105,7 +105,7 @@ void ReversePatch::findPatched(std::unordered_map<std::string, std::string> &elf
 void ReversePatch::visit(Module *module) {
   auto program = static_cast<Program *>(module->getParent());
   std::cout << "Compare module-[" << module->getName() << "] with module-[" << comparedModule->getName()
-    << "]\n";
+    << "] on function: " << ref_funcname << "()\n";
   recurse(module->getInitFunctionList());
   recurse(module->getDataRegionList());
   recurse(module);
