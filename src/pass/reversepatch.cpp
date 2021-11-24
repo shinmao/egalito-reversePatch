@@ -93,10 +93,10 @@ void ReversePatch::hashsign(std::unordered_map<std::string, FuncSignature> &elfs
 }
 
 void ReversePatch::findPatched(std::unordered_map<std::string, std::string> &elf, std::unordered_map<std::string, std::string> &cmp) {
-  std::cout << "finding patched function in elf:\n";
+  std::cout << "finding similar function in elf:\n";
   for(auto i = elf.begin(); i != elf.end(); ++i) {
-    if(cmp.count(i->first) == 0) {
-      std::cout << i->second << " function is patched\n";
+    if(cmp.count(i->first) > 0) {
+      std::cout << i->second << " function is found\n";
     }
   }
   std::cout << "===================\n";
@@ -128,7 +128,6 @@ void ReversePatch::visit(Module *module) {
   hashsign(cmpelfsign, cmp);
 
   findPatched(elf, cmp);
-  findPatched(cmp, elf);
 }
 
 void ReversePatch::visit(InitFunction *initFunction) {
@@ -142,6 +141,12 @@ void ReversePatch::visit(Function *function) {
 	  std::cout << function->getName() << " belongs to initfunction\n";
 	  return;
   }
+  /**
+  std::string mod_name = dynamic_cast<Module *>(function->getParent()->getParent())->getName();
+  if(mod_name == "module-(executable)") {
+	  // if functions belongs to module-(executable), then only check reference function
+	  if(function->getName() != ref_funcname) return;
+  }**/
   std::cout << "+================" << function->getName() << "================+\n";
   // find number of syscall based on each function
   FindSyscalls findSyscalls;
