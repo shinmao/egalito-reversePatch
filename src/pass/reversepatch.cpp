@@ -16,31 +16,49 @@
 
 void ReversePatch::compareLog() {
   // this function is used to print out signatures of two binaries
-  std::cout << "+===================elfsign====================+\n";
-  for(auto it = elfsign.begin(); it != elfsign.end(); ++it) {
-    std::cout << it->first << "\n";
-    std::cout << "numBB: " << it->second.numBB << "\n";
-    std::cout << "numInst: " << it->second.numInst << "\n";
-    std::cout << "numSyscall: " << it->second.numSyscall << "\n";
-    std::cout << "\nWho is called by me: [";
-    for(auto i : it->second.callee) std::cout << i << ", ";
-    std::cout << "]\n";
-    std::cout << "Who calls me: [";
-    for(auto i : it->second.caller) std::cout << i << ", ";
-    std::cout << "]\n";
+  // single function in elf
+  std::cout << "Print out hash signatures for two binaries\n For reference function: \n";
+  for(auto i = elf.begin(); i != elf.end(); ++i) {
+	  std::cout << "For function " << i->first << ":\n";
+	  std::cout << "number of syscall: " << std::to_string(i->second[0][0]) << "\nopcode: [ ";
+	  for(auto j = i->second[1].begin(); j != i->second[1].end(); ++j) {
+		  std::cout << std::to_string(*j) << " ";
+	  }
+	  std::cout << "]\ntype: [ ";
+	  for(auto j = i->second[2].begin(); j != i->second[2].end(); ++j) {
+		  std::cout << std::to_string(*j) << " ";
+	  }
+	  std::cout << "]\ncallee: [ ";
+	  for(auto j = i->second[3].begin(); j != i->second[3].end(); ++j) {
+		  std::cout << std::to_string(*j) << " ";
+	  }
+	  std::cout << "]\nplt: [ ";
+	  for(auto j = i->second[4].begin(); j != i->second[4].end(); ++j) {
+		  std::cout << std::to_string(*j) << " ";
+	  }
+      std::cout << "]\n";
   }
-  std::cout << "+====================cmpelfsign====================+\n";
-  for(auto it = cmpelfsign.begin(); it != cmpelfsign.end(); ++it) {
-    std::cout << it->first << "\n";
-    std::cout << "numBB: " << it->second.numBB << "\n";
-    std::cout << "numInst: " << it->second.numInst << "\n";
-    std::cout << "numSyscall: " << it->second.numSyscall << "\n";
-    std::cout << "\nWho is called by me: [";
-    for(auto i : it->second.callee) std::cout << i << ", ";
-    std::cout << "]\n";
-    std::cout << "Who calls me: [";
-    for(auto i : it->second.caller) std::cout << i << ", ";
-    std::cout << "]\n";
+  std::cout << "=======================================================================\n";
+  // all functions in cmp
+  for(auto i = cmp.begin(); i != cmp.end(); ++i) {
+	  std::cout << "For function " << i->first << ":\n";
+	  std::cout << "number of syscall: " << std::to_string(i->second[0][0]) << "\nopcode: [ ";
+	  for(auto j = i->second[1].begin(); j != i->second[1].end(); ++j) {
+		  std::cout << std::to_string(*j) << " ";
+	  }
+	  std::cout << "]\ntype: [ ";
+	  for(auto j = i->second[2].begin(); j != i->second[2].end(); ++j) {
+		  std::cout << std::to_string(*j) << " ";
+	  }
+	  std::cout << "]\ncallee: [ ";
+	  for(auto j = i->second[3].begin(); j != i->second[3].end(); ++j) {
+		  std::cout << std::to_string(*j) << " ";
+	  }
+	  std::cout << "]\nplt: [ ";
+	  for(auto j = i->second[4].begin(); j != i->second[4].end(); ++j) {
+		  std::cout << std::to_string(*j) << " ";
+	  }
+      std::cout << "]\n";
   }
 }
 
@@ -48,46 +66,45 @@ void ReversePatch::mergeTable(std::unordered_map<std::string, FuncSignature> &el
   std::cout << "merging tables from two binaries\n";
   for(auto i = elfsig.begin(); i != elfsig.end(); ++i) {
     for(auto it = mnemonic_set.begin(); it != mnemonic_set.end(); ++it) {
-      i->second.fq_mnemonic.push_back(std::count(i->second.mnemonic.begin(), i->second.mnemonic.end(), *it));
+	  // opcode would show with percentage
+	  float per_mnemonic = static_cast<float>(std::count(i->second.mnemonic.begin(), i->second.mnemonic.end(), *it) / i->second.numInst * 100);
+      i->second.fq_mnemonic.push_back(per_mnemonic);
     }
 
     for(auto it = type_set.begin(); it != type_set.end(); ++it) {
-      i->second.fq_type.push_back(std::count(i->second.instType.begin(), i->second.instType.end(), *it));
+      // instruction type would show with percentage
+	  float per_type = static_cast<float>(std::count(i->second.instType.begin(), i->second.instType.end(), *it) / i->second.numInst * 100);
+	  i->second.fq_type.push_back(per_type);
     }
 
     for(auto it = calle_set.begin(); it != calle_set.end(); ++it) {
-      i->second.fq_calle.push_back(std::count(i->second.callee.begin(), i->second.callee.end(), *it));
+	  // callee function would show with count
+	  float cnt_callee = static_cast<float>(std::count(i->second.callee.begin(), i->second.callee.end(), *it));
+      i->second.fq_calle.push_back(cnt_callee);
     }
 
     for(auto it = plt_set.begin(); it != plt_set.end(); ++it) {
-      i->second.fq_callplt.push_back(std::count(i->second.callplt.begin(), i->second.callplt.end(), *it));
+	  // plt function would show with count
+	  float cnt_plt = static_cast<float>(std::count(i->second.callplt.begin(), i->second.callplt.end(), *it));
+      i->second.fq_callplt.push_back(cnt_plt);
     }
   }
 }
 
-void ReversePatch::hashsign(std::unordered_map<std::string, FuncSignature> &elfsig, std::unordered_map<std::string, std::string> &sign2name) {
-  // [ numBB | numInst | numSyscall | fq_mnemonic | fq_type | fq_calle | fq_callplt ]
+void ReversePatch::hashsign(std::unordered_map<std::string, FuncSignature> &elfsig, std::unordered_map<std::string, std::vector<std::vector<float> > > &name2sign) {
+  // [ numSyscall | fq_mnemonic | fq_type | fq_calle | fq_callplt ]
   std::cout << "start working on generating hash for two binaries\n";
   for(auto i = elfsig.begin(); i != elfsig.end(); ++i) {
-    std::string res = "";
-    res += std::to_string(i->second.numBB);
-    res += std::to_string(i->second.numInst);
-    res += std::to_string(i->second.numSyscall);
-    for(auto mne : i->second.fq_mnemonic) {
-      res += std::to_string(mne);
-    }
-    for(auto type : i->second.fq_type) {
-      res += std::to_string(type);
-    }
-    for(auto calle : i->second.fq_calle) {
-      res += std::to_string(calle);
-    }
-    for(auto plt : i->second.fq_callplt) {
-      res += std::to_string(plt);
-    }
+    std::vector<std::vector<float> > res;
+	std::vector<float> sc{ i->second.numSyscall };
+    res.push_back(sc);
+	res.push_back( i->second.fq_mnemonic );
+	res.push_back( i->second.fq_type );
+	res.push_back( i->second.fq_calle );
+	res.push_back( i->second.fq_callplt );
     i->second.signature = res;
     // map hash sign to function name in another map elf/cmp
-    sign2name[res] = i->second.funcname;
+    name2sign[i->second.funcname] = res;
   }
   std::cout << "===================\n";
 }
@@ -120,14 +137,16 @@ void ReversePatch::visit(Module *module) {
   fsign.clear();
   initFunctionList.clear();
 
-  //compareLog();
   mergeTable(elfsign);
   mergeTable(cmpelfsign);
 
   hashsign(elfsign, elf);
   hashsign(cmpelfsign, cmp);
 
-  findPatched(elf, cmp);
+  // print out single function in elf and all functions in cmp
+  compareLog();
+
+  //findPatched(elf, cmp);
 }
 
 void ReversePatch::visit(InitFunction *initFunction) {
@@ -141,12 +160,11 @@ void ReversePatch::visit(Function *function) {
 	  std::cout << function->getName() << " belongs to initfunction\n";
 	  return;
   }
-  /**
   std::string mod_name = dynamic_cast<Module *>(function->getParent()->getParent())->getName();
   if(mod_name == "module-(executable)") {
 	  // if functions belongs to module-(executable), then only check reference function
 	  if(function->getName() != ref_funcname) return;
-  }**/
+  }
   std::cout << "+================" << function->getName() << "================+\n";
   // find number of syscall based on each function
   FindSyscalls findSyscalls;

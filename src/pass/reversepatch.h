@@ -25,16 +25,16 @@ public:
   int numInst = 0;
   int numSyscall = 0;
   std::string funcname;
-  std::string signature;
+  std::vector<std::vector<float> > signature;
   std::vector<std::string> mnemonic;
   std::vector<std::string> instType;
-  std::vector<int> fq_mnemonic;
-  std::vector<int> fq_type;
+  std::vector<float> fq_mnemonic;
+  std::vector<float> fq_type;
   std::vector<std::string> caller;
   std::vector<std::string> callee;
-  std::vector<int> fq_calle;
+  std::vector<float> fq_calle;
   std::vector<std::string> callplt;
-  std::vector<int> fq_callplt;
+  std::vector<float> fq_callplt;
   FuncSignature() {}
 };
 
@@ -48,8 +48,8 @@ private:
   std::unordered_map<std::string, FuncSignature> elfsign;
   std::unordered_map<std::string, FuncSignature> cmpelfsign;
   // used for locate patched function: <hash sign, function name>
-  std::unordered_map<std::string, std::string> elf;
-  std::unordered_map<std::string, std::string> cmp;
+  std::unordered_map<std::string, std::vector<std::vector<float> > > elf;
+  std::unordered_map<std::string, std::vector<std::vector<float> > > cmp;
   std::unordered_map<std::string, FuncSignature> fsign;
   std::set<std::string> mnemonic_set;
   std::set<std::string> type_set;
@@ -60,7 +60,7 @@ public:
   virtual ~ReversePatch() { std::cout << "Revdone\n"; }
   void compareLog();
   void mergeTable(std::unordered_map<std::string, FuncSignature> &elfsig);
-  void hashsign(std::unordered_map<std::string, FuncSignature> &elfsig, std::unordered_map<std::string, std::string> &sign2name);
+  void hashsign(std::unordered_map<std::string, FuncSignature> &elfsig, std::unordered_map<std::string, std::vector<std::vector<float> > > &name2sign);
   void findPatched(std::unordered_map<std::string, std::string> &elf, std::unordered_map<std::string, std::string> &cmp);
   void visit(Module *module);
   void visit(InitFunction *initFunction);
