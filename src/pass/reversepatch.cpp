@@ -65,15 +65,16 @@ void ReversePatch::compareLog() {
 void ReversePatch::mergeTable(std::unordered_map<std::string, FuncSignature> &elfsig) {
   std::cout << "merging tables from two binaries\n";
   for(auto i = elfsig.begin(); i != elfsig.end(); ++i) {
+	std::cout << "number of instruction is " << i->second.numInst << "\n";
     for(auto it = mnemonic_set.begin(); it != mnemonic_set.end(); ++it) {
 	  // opcode would show with percentage
-	  float per_mnemonic = static_cast<float>(std::count(i->second.mnemonic.begin(), i->second.mnemonic.end(), *it) / i->second.numInst * 100);
+	  float per_mnemonic = static_cast<float>(std::count(i->second.mnemonic.begin(), i->second.mnemonic.end(), *it)) / static_cast<float>(i->second.numInst);
       i->second.fq_mnemonic.push_back(per_mnemonic);
     }
 
     for(auto it = type_set.begin(); it != type_set.end(); ++it) {
       // instruction type would show with percentage
-	  float per_type = static_cast<float>(std::count(i->second.instType.begin(), i->second.instType.end(), *it) / i->second.numInst * 100);
+	  float per_type = static_cast<float>(std::count(i->second.instType.begin(), i->second.instType.end(), *it)) / static_cast<float>(i->second.numInst);
 	  i->second.fq_type.push_back(per_type);
     }
 
