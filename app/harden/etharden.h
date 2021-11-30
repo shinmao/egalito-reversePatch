@@ -10,6 +10,7 @@ private:
     // for revpatch
     Module *comparedModule;
     std::string funcname;
+	std::string outputlog;
 public:
     HardenApp() : quiet(true), comparedModule(nullptr) {}
     void run(int argc, char **argv);

@@ -1,6 +1,7 @@
 #include <iostream>
 #include <string>
 #include <algorithm>
+#include <fstream>
 #include "reversepatch.h"
 #include "findsyscalls.h"
 #include "disasm/disassemble.h"
@@ -13,6 +14,46 @@
 
 // current goal
 // to get the signature of function
+
+void ReversePatch::writedata(std::string filename, std::unordered_map<std::string, std::vector<std::vector<float> > > &elf, std::unordered_map<std::string, std::vector<std::vector<float> > > &cmp) {
+  std::ofstream data ("/home/rafael/Desktop/" + filename + "/vector.txt");
+  if(data.is_open()) {
+	  data << "main======================\n";
+	  for(auto i = elf.begin(); i != elf.end(); ++i) {
+		  data << "Main-Function: " << i->first << "\n";
+		  data << "Syscall: " << std::to_string(i->second[0][0]) << "\n";
+		  data << "Opcode: ";
+		  for(auto j = i->second[1].begin(); j != i->second[1].end(); ++j) data << std::to_string(*j) << " ";
+		  data << "\nType: ";
+		  for(auto j = i->second[2].begin(); j != i->second[2].end(); ++j) data << std::to_string(*j) << " ";
+	      data << "\nCallee: ";
+	      for(auto j = i->second[3].begin(); j != i->second[3].end(); ++j) data << std::to_string(*j) << " ";
+	      data << "\nPLT: ";
+	      for(auto j = i->second[4].begin(); j != i->second[4].end(); ++j) data << std::to_string(*j) << " ";
+          data << "\n";
+	  }
+	  data << "cmp=======================\n";
+      for(auto i = cmp.begin(); i != cmp.end(); ++i) {
+		  if(i->first == ref_funcname) {
+			  data << "Matched-Function: " << i->first << "\n";
+		  } else {
+			  data << "Function: " << i->first << "\n";
+		  }
+		  data << "Syscall: " << std::to_string(i->second[0][0]) << "\n";
+		  data << "Opcode: ";
+		  for(auto j = i->second[1].begin(); j != i->second[1].end(); ++j) data << std::to_string(*j) << " ";
+		  data << "\nType: ";
+		  for(auto j = i->second[2].begin(); j != i->second[2].end(); ++j) data << std::to_string(*j) << " ";
+	      data << "\nCallee: ";
+	      for(auto j = i->second[3].begin(); j != i->second[3].end(); ++j) data << std::to_string(*j) << " ";
+	      data << "\nPLT: ";
+	      for(auto j = i->second[4].begin(); j != i->second[4].end(); ++j) data << std::to_string(*j) << " ";
+          data << "\n";
+	  }
+	  data.close();
+  }
+  else std::cout << "Unable to open the file";
+}
 
 void ReversePatch::compareLog() {
   // this function is used to print out signatures of two binaries
@@ -93,7 +134,7 @@ void ReversePatch::mergeTable(std::unordered_map<std::string, FuncSignature> &el
 }
 
 void ReversePatch::hashsign(std::unordered_map<std::string, FuncSignature> &elfsig, std::unordered_map<std::string, std::vector<std::vector<float> > > &name2sign) {
-  // [ numSyscall | fq_mnemonic | fq_type | fq_calle | fq_callplt ]
+  // [ numSyscall | fq_mnemonic | fq_type | fq_calle | fq_callplt ] put into name2sign 
   std::cout << "start working on generating hash for two binaries\n";
   for(auto i = elfsig.begin(); i != elfsig.end(); ++i) {
     std::vector<std::vector<float> > res;
@@ -137,6 +178,16 @@ void ReversePatch::visit(Module *module) {
   cmpelfsign = fsign;
   fsign.clear();
   initFunctionList.clear();
+  /**
+  std::cout << "================================\n";
+  for(auto i : mnemonic_set) { std::cout << i << " "; }
+  std::cout << "\n";
+  for(auto i : type_set) { std::cout << i << " "; }
+  std::cout << "\n";
+  for(auto i : calle_set) { std::cout << i << " "; }
+  std::cout << "\n";
+  for(auto i : plt_set) { std::cout << i << " "; }
+  std::cout << "\n===============================\n";**/
 
   mergeTable(elfsign);
   mergeTable(cmpelfsign);
@@ -145,8 +196,9 @@ void ReversePatch::visit(Module *module) {
   hashsign(cmpelfsign, cmp);
 
   // print out single function in elf and all functions in cmp
-  compareLog();
+  //compareLog();
 
+  writedata(outputlog, elf, cmp);
   //findPatched(elf, cmp);
 }
 

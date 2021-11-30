@@ -42,6 +42,7 @@ class ReversePatch : public ChunkPass {
 private:
   Module *comparedModule;
   std::string ref_funcname;
+  std::string outputlog;
   FuncSignature fs;
   int inst_counter = 0;
   std::vector<std::string> initFunctionList;   // we can skip comparing on initFunction
@@ -56,8 +57,9 @@ private:
   std::set<std::string> calle_set;
   std::set<std::string> plt_set;
 public:
-  ReversePatch(Module *comparedModule, std::string funcname) : comparedModule(comparedModule), ref_funcname(funcname) {}
+  ReversePatch(Module *comparedModule, std::string funcname, std::string outputlog) : comparedModule(comparedModule), ref_funcname(funcname), outputlog(outputlog) {}
   virtual ~ReversePatch() { std::cout << "Revdone\n"; }
+  void writedata(std::string filename, std::unordered_map<std::string, std::vector<std::vector<float> > > &elf, std::unordered_map<std::string, std::vector<std::vector<float> > > &cmp);
   void compareLog();
   void mergeTable(std::unordered_map<std::string, FuncSignature> &elfsig);
   void hashsign(std::unordered_map<std::string, FuncSignature> &elfsig, std::unordered_map<std::string, std::vector<std::vector<float> > > &name2sign);

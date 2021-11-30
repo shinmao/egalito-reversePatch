@@ -118,7 +118,7 @@ void HardenApp::doRevpatch() {
     std::cout << "Comparing two modules on function: " << funcname << "\n";
     auto program = getProgram();
     auto module = program->getMain();
-    ReversePatch revpatch(comparedModule, funcname);
+    ReversePatch revpatch(comparedModule, funcname, outputlog);
     module->accept(&revpatch);
     //RUN_PASS(ReversePatch(), getProgram());
 }
@@ -147,7 +147,11 @@ static void printUsage(const char *program) {
         "    --permute-data Randomize order of global variables in .data\n"
         "    --profile      Add profiling counters to each function\n"
         "    --cond-watchpoint   Add conditional watchpoints for GDB\n"
-        "    --rev-patch    [Extended] Generate patch on another version\n"
+        "    --rev-patch    baby binary diff tool\n"
+		"         [template binary]\n"
+		"         [target binary]\n"
+		"         [patched function name]\n"
+		"         [output log file]\n"
         "Note: the EGALITO_DEBUG variable is also honoured.\n";
 }
 
@@ -212,10 +216,11 @@ void HardenApp::run(int argc, char **argv) {
                 std::cout << "Warning: unrecognized option \"" << arg << "\"\n";
             }
         }
-        else if(argv[a] && argv[a + 1] && argv[a + 2]) {
+        else if(argv[a] && argv[a + 1] && argv[a + 2] && argv[a + 3]) {
             // case for rev ReversePatch
             // parse two binary and map to memory at the same time
-	    funcname = argv[a + 2];
+	        funcname = argv[a + 2];
+			outputlog = argv[a + 3];
             revparse(argv[a], argv[a + 1], oneToOne);
             for(auto op : ops) {
               techniques[op]();
