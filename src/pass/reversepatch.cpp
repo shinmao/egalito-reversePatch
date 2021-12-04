@@ -220,7 +220,8 @@ void ReversePatch::visit(Function *function) {
   }
   std::cout << "+================" << function->getName() << "================+\n";
   // find number of syscall based on each function
-  FindSyscalls findSyscalls;
+  /** temporarily close the function of tracing syscall
+  findsyscalls findsyscalls;
   function->accept(&findSyscalls);
   auto list = findSyscalls.getNumberMap();
   for(auto it : list) {
@@ -230,7 +231,8 @@ void ReversePatch::visit(Function *function) {
 	  // but not unique in multiple instr
 	  std::cout << "syscall: " << syscallValues.size() << "\n";
 	  fs.numSyscall += syscallValues.size();
-  }
+  }**/
+  fs.numSyscall = 0;
   std::cout << "num of syscall: " << fs.numSyscall << "\n";
 
   fs.funcname = function->getName();
